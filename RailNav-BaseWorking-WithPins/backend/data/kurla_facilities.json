@@ -1,0 +1,374 @@
+{
+  "station": "kurla",
+  "updated_at": "2025-10-30T21:14:11.004419Z",
+  "count": 25,
+  "facilities": [
+    {
+      "id": 3529566936,
+      "name": "Kurla_Food_1",
+      "type": "Food",
+      "lat": 19.0621078,
+      "lng": 72.8769645,
+      "raw_name": "GULAM MOHHAMED SHUBRATI BUILDING;suleman usman mithiwala",
+      "tags": {
+        "addr:city": "MUMBAI",
+        "addr:postcode": "400070",
+        "addr:street": "A H Wadia Marg",
+        "amenity": "restaurant",
+        "building": "residential",
+        "name": "GULAM MOHHAMED SHUBRATI BUILDING;suleman usman mithiwala"
+      }
+    },
+    {
+      "id": 3532111661,
+      "name": "Kurla_Bank_1",
+      "type": "Bank",
+      "lat": 19.0627501,
+      "lng": 72.8804604,
+      "raw_name": "State Bank of India",
+      "tags": {
+        "amenity": "bank",
+        "atm": "yes",
+        "brand": "State Bank of India",
+        "brand:wikidata": "Q1340361",
+        "brand:wikipedia": "en:State Bank of India",
+        "name": "State Bank of India",
+        "short_name": "SBI"
+      }
+    },
+    {
+      "id": 3532119179,
+      "name": "Kurla_Food_2",
+      "type": "Food",
+      "lat": 19.0647322,
+      "lng": 72.8823854,
+      "raw_name": "Sheetal Restaurant",
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Sheetal Restaurant",
+        "name:en": "Sheetal Restaurant"
+      }
+    },
+    {
+      "id": 3532119818,
+      "name": "Kurla_Medical_1",
+      "type": "Medical",
+      "lat": 19.0634778,
+      "lng": 72.8817876,
+      "raw_name": "v care hospital intensive& unit care",
+      "tags": {
+        "amenity": "hospital",
+        "name": "v care hospital intensive& unit care"
+      }
+    },
+    {
+      "id": 3532120654,
+      "name": "Kurla_Food_3",
+      "type": "Food",
+      "lat": 19.064423,
+      "lng": 72.8818866,
+      "raw_name": "cafe nar restarunt",
+      "tags": {
+        "amenity": "restaurant",
+        "name": "cafe nar restarunt"
+      }
+    },
+    {
+      "id": 3532121099,
+      "name": "Kurla_Police_1",
+      "type": "Police",
+      "lat": 19.0650661,
+      "lng": 72.8808749,
+      "raw_name": "Nehru Nagar Kurla E Police Chowky",
+      "tags": {
+        "amenity": "police",
+        "name": "Nehru Nagar Kurla E Police Chowky"
+      }
+    },
+    {
+      "id": 3532122516,
+      "name": "Kurla_Bank_2",
+      "type": "Bank",
+      "lat": 19.0637716,
+      "lng": 72.8842194,
+      "raw_name": "Allahabad Bank",
+      "tags": {
+        "amenity": "bank",
+        "atm": "yes",
+        "brand": "Allahabad Bank",
+        "brand:wikidata": "Q2018840",
+        "brand:wikipedia": "en:Allahabad Bank",
+        "name": "Allahabad Bank",
+        "name:en": "Allahabad Bank",
+        "website": "https://www.allahabadbank.in"
+      }
+    },
+    {
+      "id": 3532124714,
+      "name": "Kurla_Medical_2",
+      "type": "Medical",
+      "lat": 19.0693933,
+      "lng": 72.8781202,
+      "raw_name": "arpan nursing home",
+      "tags": {
+        "amenity": "hospital",
+        "name": "arpan nursing home"
+      }
+    },
+    {
+      "id": 3532124715,
+      "name": "Kurla_Bank_3",
+      "type": "Bank",
+      "lat": 19.0692808,
+      "lng": 72.8781281,
+      "raw_name": "noor communication",
+      "tags": {
+        "amenity": "bank",
+        "name": "noor communication"
+      }
+    },
+    {
+      "id": 3532124717,
+      "name": "Kurla_Medical_3",
+      "type": "Medical",
+      "lat": 19.0627584,
+      "lng": 72.8731765,
+      "raw_name": "fauziya hospital",
+      "tags": {
+        "amenity": "hospital",
+        "name": "fauziya hospital"
+      }
+    },
+    {
+      "id": 3532126359,
+      "name": "Kurla_Medical_4",
+      "type": "Medical",
+      "lat": 19.0636096,
+      "lng": 72.8819271,
+      "raw_name": "arayan hospital",
+      "tags": {
+        "amenity": "hospital",
+        "name": "arayan hospital"
+      }
+    },
+    {
+      "id": 3532210535,
+      "name": "Kurla_Food_4",
+      "type": "Food",
+      "lat": 19.0630215,
+      "lng": 72.8828264,
+      "raw_name": "sawali hotel",
+      "tags": {
+        "amenity": "restaurant",
+        "delivery": "yes",
+        "diet:vegetarian": "only",
+        "name": "sawali hotel"
+      }
+    },
+    {
+      "id": 7045020590,
+      "name": "Kurla_Medical_5",
+      "type": "Medical",
+      "lat": 19.062706,
+      "lng": 72.8815868,
+      "raw_name": "V Care Hospital and Icu",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Opposite Bldg No.101, Nehru Nagar, Kurla (E)",
+        "addr:postcode": "400070",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "V Care Hospital and Icu",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7045324038,
+      "name": "Kurla_Medical_6",
+      "type": "Medical",
+      "lat": 19.0630077,
+      "lng": 72.8823915,
+      "raw_name": "Aryan Hospital and Iccu - Kurla-Mumbai",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "D-28 & 29, Nehru Nagar, Station Road, Kurla (East)",
+        "addr:postcode": "400024",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "Aryan Hospital and Iccu - Kurla-Mumbai",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7064825234,
+      "name": "Kurla_Medical_7",
+      "type": "Medical",
+      "lat": 19.0668794,
+      "lng": 72.8778599,
+      "raw_name": "Well Care Nursing Home",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "1 Khot Chawl Opp Sainath Chowk Near Afuwala Lane Takiya Ward Sarveshwar Mandir Road Kurla W",
+        "addr:postcode": "400070",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Well Care Nursing Home",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7067373861,
+      "name": "Kurla_Medical_8",
+      "type": "Medical",
+      "lat": 19.0704407,
+      "lng": 72.8751061,
+      "raw_name": "Despande Nursing Home",
+      "tags": {
+        "addr:full": "Town Hall",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Despande Nursing Home",
+        "source": "OpenGovernmentData",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 7087131468,
+      "name": "Kurla_Medical_9",
+      "type": "Medical",
+      "lat": 19.0626503,
+      "lng": 72.881615,
+      "raw_name": "Prarushi Healthcare Pvt Ltd / Kusumesh Chandra Maternity Hospital",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Opp-Building No-101 Nehru Nagar, Kurla (E)",
+        "addr:postcode": "400024",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "Prarushi Healthcare Pvt Ltd / Kusumesh Chandra Maternity Hospital",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7225067244,
+      "name": "Kurla_Medical_10",
+      "type": "Medical",
+      "lat": 19.060045,
+      "lng": 72.876898,
+      "raw_name": "Kamgar Nagar Health Post and Qureshi Nagar Dispensary",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Qureshi Nagar Municipal Dispensary, Near Urdu Municipal School Qureshi Nagar, Muftie Azam Road, Kurla East",
+        "addr:postcode": "400024",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "description": "Dispensaries",
+        "health_facility:type": "dispensary",
+        "healthcare": "centre",
+        "name": "Kamgar Nagar Health Post and Qureshi Nagar Dispensary",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 9215480148,
+      "name": "Kurla_Medical_11",
+      "type": "Medical",
+      "lat": 19.0708455,
+      "lng": 72.878112,
+      "raw_name": "Bhabha Hospital",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Ambedkar Nagar, Kurla West",
+        "addr:postcode": "400070",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "description": "Private Hospital",
+        "name": "Bhabha Hospital",
+        "source": "Local Knowledge"
+      }
+    },
+    {
+      "id": 10172914421,
+      "name": "Kurla_Medical_12",
+      "type": "Medical",
+      "lat": 19.0627787,
+      "lng": 72.8731767,
+      "raw_name": "Fauziya hospital",
+      "tags": {
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Fauziya hospital"
+      }
+    },
+    {
+      "id": 10172914423,
+      "name": "Kurla_Medical_13",
+      "type": "Medical",
+      "lat": 19.0708724,
+      "lng": 72.8781127,
+      "raw_name": "bhabha hospital",
+      "tags": {
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "bhabha hospital"
+      }
+    },
+    {
+      "id": 11449431524,
+      "name": "Kurla_Bank_4",
+      "type": "Bank",
+      "lat": 19.0653031,
+      "lng": 72.8744544,
+      "raw_name": "State Bank of India",
+      "tags": {
+        "amenity": "bank",
+        "brand": "State Bank of India",
+        "brand:wikidata": "Q1340361",
+        "name": "State Bank of India",
+        "short_name": "SBI"
+      }
+    },
+    {
+      "id": 353424954,
+      "name": "Kurla_Bank_5",
+      "type": "Bank",
+      "lat": 19.0705335,
+      "lng": 72.8795848,
+      "raw_name": "The Kurla Nagarik Sahakarl bank Limited",
+      "tags": {
+        "amenity": "bank",
+        "building": "yes",
+        "name": "The Kurla Nagarik Sahakarl bank Limited"
+      }
+    },
+    {
+      "id": 380562830,
+      "name": "Kurla_Toilet_1",
+      "type": "Toilet",
+      "lat": 19.0668776,
+      "lng": 72.8790616,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "building": "yes"
+      }
+    },
+    {
+      "id": 627802514,
+      "name": "Kurla_Police_2",
+      "type": "Police",
+      "lat": 19.0587962,
+      "lng": 72.8805426,
+      "raw_name": "Nehru Nagar Kurla Police Station",
+      "tags": {
+        "addr:city": "Mumbai",
+        "addr:postcode": "400024",
+        "amenity": "police",
+        "building": "yes",
+        "name": "Nehru Nagar Kurla Police Station",
+        "opening_hours": "24/7"
+      }
+    }
+  ]
+}

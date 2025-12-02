@@ -1,0 +1,987 @@
+{
+  "station": "dadar",
+  "updated_at": "2025-10-30T21:14:08.340245Z",
+  "count": 65,
+  "facilities": [
+    {
+      "id": 5221682036,
+      "name": "Dadar_Food_1",
+      "type": "Food",
+      "lat": 19.0232897,
+      "lng": 72.8422028,
+      "raw_name": "Gomantak Boarding House",
+      "tags": {
+        "addr:city": "Mumbai",
+        "addr:housenumber": "301",
+        "addr:postcode": "400028",
+        "addr:street": "N C Kelkar Marg",
+        "amenity": "restaurant",
+        "name": "Gomantak Boarding House",
+        "phone": "+91-22-2430-5631"
+      }
+    },
+    {
+      "id": 6110255887,
+      "name": "Dadar_Food_2",
+      "type": "Food",
+      "lat": 19.0194416,
+      "lng": 72.8404862,
+      "raw_name": null,
+      "tags": {
+        "addr:postcode": "400028",
+        "addr:street": "Dr D'Silva Marg",
+        "amenity": "fast_food",
+        "cuisine": "indian",
+        "name:en": "Saurashtra",
+        "opening_hours": "Mo-Su 07:00-21:00",
+        "phone": "+9196199 66399,+912224228063"
+      }
+    },
+    {
+      "id": 6187817686,
+      "name": "Dadar_ATM_1",
+      "type": "ATM",
+      "lat": 19.0205928,
+      "lng": 72.8415427,
+      "raw_name": "Indian Bank",
+      "tags": {
+        "addr:postcode": "400028",
+        "amenity": "atm",
+        "brand": "Indian Bank",
+        "brand:wikidata": "Q2003789",
+        "brand:wikipedia": "en:Indian Bank",
+        "name": "Indian Bank",
+        "name:en": "Indian bank",
+        "operator": "Indian Bank",
+        "operator:wikidata": "Q2003789",
+        "operator:wikipedia": "en:Indian Bank"
+      }
+    },
+    {
+      "id": 6187853585,
+      "name": "Dadar_Food_3",
+      "type": "Food",
+      "lat": 19.0195883,
+      "lng": 72.8407118,
+      "raw_name": null,
+      "tags": {
+        "amenity": "restaurant",
+        "name:en": "Visawa",
+        "opening_hours": "Mo-Su 10:00-23:00"
+      }
+    },
+    {
+      "id": 6187853586,
+      "name": "Dadar_Food_4",
+      "type": "Food",
+      "lat": 19.0200638,
+      "lng": 72.840752,
+      "raw_name": null,
+      "tags": {
+        "amenity": "fast_food",
+        "name:en": "Tambe Aarogya Bhavan"
+      }
+    },
+    {
+      "id": 6201766085,
+      "name": "Dadar_Food_5",
+      "type": "Food",
+      "lat": 19.0150397,
+      "lng": 72.8453947,
+      "raw_name": null,
+      "tags": {
+        "amenity": "fast_food",
+        "cuisine": "breakfast",
+        "name:en": "Bhaji"
+      }
+    },
+    {
+      "id": 7043534838,
+      "name": "Dadar_Medical_1",
+      "type": "Medical",
+      "lat": 19.0217715,
+      "lng": 72.8496136,
+      "raw_name": "Dr Khandeparkar's Nursing Home",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "157 Bhagyalaxmi, 3rd Floor, Sir Bhalchandra Road, Hindu Colony, Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "email": "info@khandeparkarsivf.com",
+        "healthcare": "clinic",
+        "name": "Dr Khandeparkar's Nursing Home",
+        "source": "OpenGovernmentData",
+        "website": "https://khandeparkarsivf.com/"
+      }
+    },
+    {
+      "id": 7043746201,
+      "name": "Dadar_Medical_2",
+      "type": "Medical",
+      "lat": 19.0207952,
+      "lng": 72.8474732,
+      "raw_name": "Ashirvad Clinic(Dr.Vandana Walvekar)",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Ashirvad Clinic(Dr.Vandana Walvekar)",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7044553386,
+      "name": "Dadar_Medical_3",
+      "type": "Medical",
+      "lat": 19.0196598,
+      "lng": 72.8486822,
+      "raw_name": "Krishna Cardiac Care Centre, Mumbai",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "166-C Krishna Kunj,Khareghat Road, Dr.Ambedkar Road,Dadar( E)",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "Krishna Cardiac Care Centre, Mumbai",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7049124019,
+      "name": "Dadar_Medical_4",
+      "type": "Medical",
+      "lat": 19.0204668,
+      "lng": 72.8383778,
+      "raw_name": "Shree Vardhaman Sthanakvasi Jain Shravak Sangh Dadar Sanchalit Navneet Jain Health Centre",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "12, Gyan Mandir Road, Dadar West Railway Station",
+        "addr:postcode": "400028",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Shree Vardhaman Sthanakvasi Jain Shravak Sangh Dadar Sanchalit Navneet Jain Health Centre",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7051831014,
+      "name": "Dadar_Medical_5",
+      "type": "Medical",
+      "lat": 19.0130174,
+      "lng": 72.8467025,
+      "raw_name": "Dr. Karmarkar Hospital",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "172 -A Naigaum, Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Dr. Karmarkar Hospital",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7053247772,
+      "name": "Dadar_Medical_6",
+      "type": "Medical",
+      "lat": 19.0221746,
+      "lng": 72.8499609,
+      "raw_name": "Insight Eye Clinic",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "225/A, Shreekrishna Bhavan, Behind Ruia Collage, Sir Bhakhadra Road,Matuya",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "healthcare": "clinic",
+        "name": "Insight Eye Clinic",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7053265680,
+      "name": "Dadar_Medical_7",
+      "type": "Medical",
+      "lat": 19.0136391,
+      "lng": 72.8451061,
+      "raw_name": "Suprabha Surgicare",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "15, First Floor, Vincent Court, Near Fire Brigade, Opposite Chitra Cinema, Dr.B.Ambedkar Road, Dadar (East)",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "email": "info@daycaresurgery.com",
+        "name": "Suprabha Surgicare",
+        "operator:type": "private",
+        "source": "OpenGovernmentData",
+        "website": "http://www.daycaresurgery.com/"
+      }
+    },
+    {
+      "id": 7053882288,
+      "name": "Dadar_Medical_8",
+      "type": "Medical",
+      "lat": 19.0175906,
+      "lng": 72.8411237,
+      "raw_name": "Nerkar Surgical Clinic",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Avani 2nd Floor Senapati Bapat Marg Dadar(W)",
+        "addr:postcode": "400028",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Nerkar Surgical Clinic",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7062497112,
+      "name": "Dadar_Medical_9",
+      "type": "Medical",
+      "lat": 19.0212229,
+      "lng": 72.8474218,
+      "raw_name": "Shree Samarth Nursing Home",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "128, Hindu Colony, 5Th Lane, Dadar(East)",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Shree Samarth Nursing Home",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7065561552,
+      "name": "Dadar_Medical_10",
+      "type": "Medical",
+      "lat": 19.0186715,
+      "lng": 72.8480257,
+      "raw_name": "Akshi Eye Centre",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Mayur Niwas, 169/A, Dr. Ambedkar Road, Dadar T.T",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "Akshi Eye Centre",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7066695543,
+      "name": "Dadar_Medical_11",
+      "type": "Medical",
+      "lat": 19.015612,
+      "lng": 72.8451866,
+      "raw_name": "G S B S Medical Trust",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Shilpa Apartment Dasturwadi Dadar E Mumbai",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "G S B S Medical Trust",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7068194946,
+      "name": "Dadar_Medical_12",
+      "type": "Medical",
+      "lat": 19.019313,
+      "lng": 72.848534,
+      "raw_name": "Arthroscopy and Sports Medicine Institute",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Ground Floor,168-A, Savitri Sdn, Dr. B.A. Road, Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "name": "Arthroscopy and Sports Medicine Institute",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7079411421,
+      "name": "Dadar_Medical_13",
+      "type": "Medical",
+      "lat": 19.0205873,
+      "lng": 72.8478111,
+      "raw_name": "Shrikhande Clinic, Mumbai",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Shreyas, 120, Hindu Colony, 5Th Road, Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Shrikhande Clinic, Mumbai",
+        "source": "OpenGovernmentData",
+        "website": "https://www.shrikhandeclinic.org/"
+      }
+    },
+    {
+      "id": 7082370197,
+      "name": "Dadar_Medical_14",
+      "type": "Medical",
+      "lat": 19.0149831,
+      "lng": 72.842719,
+      "raw_name": "Dr. Mahaveer Jangada Clinic, Dadar",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "10/86 Dadasaheb Phalka Road Dadar",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Dr. Mahaveer Jangada Clinic, Dadar",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7087636854,
+      "name": "Dadar_Medical_15",
+      "type": "Medical",
+      "lat": 19.0206094,
+      "lng": 72.8486473,
+      "raw_name": "Laud Clinic",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "180, Saraswati Nilayam , 180 , Hindu Colony , Dadar ( East )",
+        "addr:postcode": "400014",
+        "addr:state": "Maharashtra",
+        "amenity": "clinic",
+        "name": "Laud Clinic",
+        "source": "OpenGovernmentData"
+      }
+    },
+    {
+      "id": 7664032202,
+      "name": "Dadar_Medical_16",
+      "type": "Medical",
+      "lat": 19.0146087,
+      "lng": 72.8424841,
+      "raw_name": "Ashvini Nursing Home",
+      "tags": {
+        "addr:district": "Mumbai City",
+        "addr:full": "Rupal Apartment, 1st Floor, Dadasaheb Phalke Road, Dadar East, Mumbai",
+        "addr:postcode": "400014",
+        "addr:state": "Maharastra",
+        "amenity": "hospital",
+        "name": "Ashvini Nursing Home",
+        "source": "Local Knowledge"
+      }
+    },
+    {
+      "id": 9055082905,
+      "name": "Dadar_Entrance_1",
+      "type": "Entrance",
+      "lat": 19.0218816,
+      "lng": 72.8482662,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes"
+      }
+    },
+    {
+      "id": 9140461065,
+      "name": "Dadar_Entrance_2",
+      "type": "Entrance",
+      "lat": 19.018918,
+      "lng": 72.8432844,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "foot": "yes"
+      }
+    },
+    {
+      "id": 9140461066,
+      "name": "Dadar_Entrance_3",
+      "type": "Entrance",
+      "lat": 19.0185972,
+      "lng": 72.8430616,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "foot": "yes"
+      }
+    },
+    {
+      "id": 9140461067,
+      "name": "Dadar_Entrance_4",
+      "type": "Entrance",
+      "lat": 19.0186112,
+      "lng": 72.8430813,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "foot": "yes"
+      }
+    },
+    {
+      "id": 9215659357,
+      "name": "Dadar_Medical_17",
+      "type": "Medical",
+      "lat": 19.0207825,
+      "lng": 72.8419304,
+      "raw_name": "Thyrocare Aarogyam Center - Dadar West",
+      "tags": {
+        "addr:district": "Mumbai",
+        "addr:full": "Dadar West",
+        "addr:postcode": "400028",
+        "addr:state": "Maharashtra",
+        "amenity": "hospital",
+        "description": "Private Hospital",
+        "name": "Thyrocare Aarogyam Center - Dadar West",
+        "source": "Local Knowledge"
+      }
+    },
+    {
+      "id": 11384605378,
+      "name": "Dadar_ATM_2",
+      "type": "ATM",
+      "lat": 19.0173819,
+      "lng": 72.8410274,
+      "raw_name": null,
+      "tags": {
+        "amenity": "atm",
+        "brand": "ICICI Bank",
+        "brand:wikidata": "Q1653258",
+        "operator": "ICICI Bank",
+        "operator:wikidata": "Q1653258",
+        "short_name": "ICICI"
+      }
+    },
+    {
+      "id": 11451935139,
+      "name": "Dadar_Food_6",
+      "type": "Food",
+      "lat": 19.0199692,
+      "lng": 72.8419124,
+      "raw_name": "Adarsha Family Restaurant",
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Adarsha Family Restaurant"
+      }
+    },
+    {
+      "id": 11451948928,
+      "name": "Dadar_Medical_18",
+      "type": "Medical",
+      "lat": 19.022103,
+      "lng": 72.8390664,
+      "raw_name": "Sheetal Ayurveda",
+      "tags": {
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Sheetal Ayurveda"
+      }
+    },
+    {
+      "id": 11452010577,
+      "name": "Dadar_Food_7",
+      "type": "Food",
+      "lat": 19.0214096,
+      "lng": 72.839685,
+      "raw_name": "Cryspy Frankie",
+      "tags": {
+        "amenity": "fast_food",
+        "name": "Cryspy Frankie"
+      }
+    },
+    {
+      "id": 12306442151,
+      "name": "Dadar_Food_8",
+      "type": "Food",
+      "lat": 19.0223451,
+      "lng": 72.8424101,
+      "raw_name": "House Of Misal",
+      "tags": {
+        "addr:housenumber": "301",
+        "addr:street": "N C Kelkar Marg",
+        "amenity": "restaurant",
+        "check_date": "2024-11-02",
+        "name": "House Of Misal"
+      }
+    },
+    {
+      "id": 12337394180,
+      "name": "Dadar_Food_9",
+      "type": "Food",
+      "lat": 19.0230074,
+      "lng": 72.8419885,
+      "raw_name": "McDonald's",
+      "tags": {
+        "amenity": "fast_food",
+        "brand": "McDonald's",
+        "brand:wikidata": "Q38076",
+        "cuisine": "burger",
+        "name": "McDonald's",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "id": 12337394181,
+      "name": "Dadar_Food_10",
+      "type": "Food",
+      "lat": 19.0228982,
+      "lng": 72.8421409,
+      "raw_name": "Burger King",
+      "tags": {
+        "amenity": "fast_food",
+        "brand": "Burger King",
+        "brand:wikidata": "Q177054",
+        "cuisine": "burger",
+        "name": "Burger King",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "id": 12531357692,
+      "name": "Dadar_Food_11",
+      "type": "Food",
+      "lat": 19.0227431,
+      "lng": 72.8494997,
+      "raw_name": "mani's",
+      "tags": {
+        "amenity": "restaurant",
+        "cuisine": "indian",
+        "name": "mani's",
+        "survey:date": "2025-01-25",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 12651956144,
+      "name": "Dadar_Toilet_1",
+      "type": "Toilet",
+      "lat": 19.0148789,
+      "lng": 72.8457701,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "male": "yes"
+      }
+    },
+    {
+      "id": 12651956145,
+      "name": "Dadar_Toilet_2",
+      "type": "Toilet",
+      "lat": 19.0149013,
+      "lng": 72.8457847,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes"
+      }
+    },
+    {
+      "id": 12760272214,
+      "name": "Dadar_Entrance_5",
+      "type": "Entrance",
+      "lat": 19.0219426,
+      "lng": 72.8478044,
+      "raw_name": null,
+      "tags": {
+        "barrier": "gate",
+        "entrance": "yes"
+      }
+    },
+    {
+      "id": 12760272231,
+      "name": "Dadar_Entrance_6",
+      "type": "Entrance",
+      "lat": 19.0224452,
+      "lng": 72.848539,
+      "raw_name": null,
+      "tags": {
+        "barrier": "gate",
+        "entrance": "yes"
+      }
+    },
+    {
+      "id": 12760272308,
+      "name": "Dadar_Elevator_1",
+      "type": "Elevator",
+      "lat": 19.0201964,
+      "lng": 72.8439517,
+      "raw_name": null,
+      "tags": {
+        "highway": "elevator",
+        "level": "0;1",
+        "ref": "5B"
+      }
+    },
+    {
+      "id": 12760272318,
+      "name": "Dadar_Elevator_2",
+      "type": "Elevator",
+      "lat": 19.0204234,
+      "lng": 72.8435842,
+      "raw_name": null,
+      "tags": {
+        "highway": "elevator",
+        "level": "0;1",
+        "ref": "1B"
+      }
+    },
+    {
+      "id": 12760272364,
+      "name": "Dadar_Entrance_7",
+      "type": "Entrance",
+      "lat": 19.0215286,
+      "lng": 72.8472346,
+      "raw_name": null,
+      "tags": {
+        "barrier": "gate",
+        "entrance": "yes"
+      }
+    },
+    {
+      "id": 12760272366,
+      "name": "Dadar_Entrance_8",
+      "type": "Entrance",
+      "lat": 19.0190668,
+      "lng": 72.8427175,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "ref": "4"
+      }
+    },
+    {
+      "id": 12760272370,
+      "name": "Dadar_Entrance_9",
+      "type": "Entrance",
+      "lat": 19.0192547,
+      "lng": 72.8428132,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "ref": "5"
+      }
+    },
+    {
+      "id": 12760272393,
+      "name": "Dadar_Drinking_Water_1",
+      "type": "Drinking_Water",
+      "lat": 19.0195914,
+      "lng": 72.8430728,
+      "raw_name": null,
+      "tags": {
+        "amenity": "drinking_water",
+        "bottle": "yes",
+        "level": "0"
+      }
+    },
+    {
+      "id": 12760272403,
+      "name": "Dadar_Toilet_3",
+      "type": "Toilet",
+      "lat": 19.0196637,
+      "lng": 72.8431028,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "yes",
+        "level": "0",
+        "male": "yes"
+      }
+    },
+    {
+      "id": 12760272419,
+      "name": "Dadar_Entrance_10",
+      "type": "Entrance",
+      "lat": 19.0201499,
+      "lng": 72.8433649,
+      "raw_name": null,
+      "tags": {
+        "entrance": "yes",
+        "ref": "7"
+      }
+    },
+    {
+      "id": 12760272458,
+      "name": "Dadar_Toilet_4",
+      "type": "Toilet",
+      "lat": 19.0196951,
+      "lng": 72.8431205,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "yes",
+        "female": "yes",
+        "level": "0"
+      }
+    },
+    {
+      "id": 13013445403,
+      "name": "Dadar_Food_12",
+      "type": "Food",
+      "lat": 19.0218791,
+      "lng": 72.8422497,
+      "raw_name": "Trupti",
+      "tags": {
+        "addr:housenumber": "8",
+        "addr:postcode": "400028",
+        "addr:street": "N C Kelkar Marg",
+        "amenity": "restaurant",
+        "cuisine": "indian",
+        "name": "Trupti",
+        "opening_hours": "Th-Tu 09:00-22:00"
+      }
+    },
+    {
+      "id": 13019062439,
+      "name": "Dadar_Food_13",
+      "type": "Food",
+      "lat": 19.0179454,
+      "lng": 72.8472451,
+      "raw_name": "D Damodar",
+      "tags": {
+        "amenity": "fast_food",
+        "cuisine": "indian",
+        "diet:vegetarian": "yes",
+        "name": "D Damodar"
+      }
+    },
+    {
+      "id": 13020281093,
+      "name": "Dadar_Medical_19",
+      "type": "Medical",
+      "lat": 19.0159298,
+      "lng": 72.8438895,
+      "raw_name": "Zeno Health Pharmacy",
+      "tags": {
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Zeno Health Pharmacy"
+      }
+    },
+    {
+      "id": 13252709758,
+      "name": "Dadar_ATM_3",
+      "type": "ATM",
+      "lat": 19.0187241,
+      "lng": 72.8432459,
+      "raw_name": null,
+      "tags": {
+        "amenity": "atm",
+        "brand": "Hitachi",
+        "level": "0",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 13252709766,
+      "name": "Dadar_Toilet_5",
+      "type": "Toilet",
+      "lat": 19.0187122,
+      "lng": 72.8432012,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "drinking_water": "no",
+        "fee": "yes",
+        "female": "yes",
+        "level": "1",
+        "toilets:handwashing": "yes",
+        "toilets:paper_supplied": "no",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 13252709772,
+      "name": "Dadar_ATM_4",
+      "type": "ATM",
+      "lat": 19.0186835,
+      "lng": 72.8432169,
+      "raw_name": null,
+      "tags": {
+        "amenity": "atm",
+        "brand": "State Bank of India",
+        "level": "0",
+        "operator": "State Bank of India",
+        "operator:wikidata": "Q1340361",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 13252709779,
+      "name": "Dadar_Toilet_6",
+      "type": "Toilet",
+      "lat": 19.0186893,
+      "lng": 72.8432471,
+      "raw_name": null,
+      "tags": {
+        "access": "yes",
+        "amenity": "toilets",
+        "drinking_water": "no",
+        "fee": "yes",
+        "level": "1",
+        "male": "yes",
+        "toilets:handwashing": "yes",
+        "toilets:paper_supplied": "no",
+        "toilets:position": "urinal",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": 135732933,
+      "name": "Dadar_Police_1",
+      "type": "Police",
+      "lat": 19.0232623,
+      "lng": 72.8409178,
+      "raw_name": "Shivaji Park Police Station",
+      "tags": {
+        "amenity": "police",
+        "building": "yes",
+        "name": "Shivaji Park Police Station"
+      }
+    },
+    {
+      "id": 1378123561,
+      "name": "Dadar_Toilet_7",
+      "type": "Toilet",
+      "lat": 19.0218486,
+      "lng": 72.8469038,
+      "raw_name": null,
+      "tags": {
+        "amenity": "toilets",
+        "building": "yes"
+      }
+    },
+    {
+      "id": 1378123570,
+      "name": "Dadar_Seating_1",
+      "type": "Seating",
+      "lat": 19.0217326,
+      "lng": 72.8470298,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123572,
+      "name": "Dadar_Seating_2",
+      "type": "Seating",
+      "lat": 19.0217468,
+      "lng": 72.8470141,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123584,
+      "name": "Dadar_Seating_3",
+      "type": "Seating",
+      "lat": 19.0217125,
+      "lng": 72.847056,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123591,
+      "name": "Dadar_Seating_4",
+      "type": "Seating",
+      "lat": 19.0217834,
+      "lng": 72.8470454,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123593,
+      "name": "Dadar_Seating_5",
+      "type": "Seating",
+      "lat": 19.0217227,
+      "lng": 72.8470428,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123594,
+      "name": "Dadar_Seating_6",
+      "type": "Seating",
+      "lat": 19.0217019,
+      "lng": 72.8470702,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123601,
+      "name": "Dadar_Seating_7",
+      "type": "Seating",
+      "lat": 19.0217587,
+      "lng": 72.8470245,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    },
+    {
+      "id": 1378123609,
+      "name": "Dadar_Seating_8",
+      "type": "Seating",
+      "lat": 19.0217712,
+      "lng": 72.8470349,
+      "raw_name": null,
+      "tags": {
+        "amenity": "bench",
+        "armrest": "yes",
+        "backrest": "yes",
+        "direction": "127",
+        "seats": "4"
+      }
+    }
+  ]
+}

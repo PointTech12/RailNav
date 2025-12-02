@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Railway Navigation Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <style>
+        /* Map Section Styles */
+        .map-section {
+            margin: 2rem 1.5rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid var(--gray-light);
+        }
+
+        .dark-mode .map-section {
+            background: var(--gray-light);
+            border-color: var(--gray-dark);
+        }
+
+        .map-section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .map-section-header {
+            border-bottom-color: var(--gray-dark);
+        }
+
+        .map-section-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .dark-mode .map-section-header h2 {
+            color: var(--light);
+        }
+
+        .map-container {
+            height: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .map-info-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            display: none;
+        }
+
+        .dark-mode .map-info-overlay {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        .map-info-overlay.active {
+            display: block;
+        }
+
+        .map-info-overlay p {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: var(--dark);
+        }
+
+        .dark-mode .map-info-overlay p {
+            color: var(--light);
+        }
+
+        .proximity-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .proximity-indicator.active {
+            display: block;
+        }
+
+        .proximity-indicator.near {
+            background: var(--warning);
+        }
+
+        .proximity-indicator.far {
+            background: var(--gray-dark);
+        }
+
+        @media (max-width: 768px) {
+            .map-section {
+                margin: 1rem;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-train-subway"></i>
+            <h1>Railway Navigator</h1>
+        </div>
+        <nav class="desktop-nav">
+            <ul>
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" id="headerSearch" placeholder="Search station or facility..." />
+            <button type="submit" id="headerSearchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        <button id="modeToggle" class="mode-toggle"><i class="fas fa-moon"></i></button>
+        <button class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="dropdown-menu">
+            <ul>
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="mob-search-container">
+        <input type="text" id="mobileSearch" placeholder="Search for a place" />
+        <button id="mobileSearchBtn"><i class="fas fa-search"></i></button>
+    </div>
+
+    <nav class="options">
+        <button id="startNavigation"><i class="fas fa-map-marker-alt"></i> Start Navigation</button>
+        <button id="setAlarm"><i class="fas fa-bell"></i> Set Alarm</button>
+        <!-- View Maps for Paths button removed as requested -->
+    </nav>
+
+    <main>
+        <section class="station-info">
+            <div class="info-container">
+                <div class="arrival-info">
+                    <div class="card-header">
+                        <h2>Station Information</h2>
+                        <span class="badge">Live</span>
+                    </div>
+                    <div class="station-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h3>Your Location</h3>
+                                <p id="userLocationDisplay">Getting location...</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-train"></i>
+                            <div>
+                                <h3>Nearest Station</h3>
+                                <p id="nearestStationDisplay">--</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-ruler"></i>
+                            <div>
+                                <h3>Distance to Station</h3>
+                                <p id="stationDistanceDisplay" class="highlight">--</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h3>Arriving In</h3>
+                                <p id="arrivalTime" class="highlight">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="crowd-density">
+                    <div class="card-header">
+                        <h2>Crowd Density</h2>
+                        <button class="refresh-btn"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                    <div class="crowd-bar">
+                        <div class="optimal-crowd" style="width: 30%;">Optimal</div>
+                        <div class="minimal-crowd" style="width: 20%;">Minimal</div>
+                        <div class="maximal-crowd" style="width: 50%;">Maximal</div>
+                    </div>
+                    <p id="currentCrowd">Current Density: <span class="medium">Medium</span></p>
+                    <div class="crowd-forecast">
+                        <h3>Forecast</h3>
+                        <div class="forecast-times">
+                            <div class="time-slot">
+                                <span>9 AM</span>
+                                <div class="density-indicator low"></div>
+                            </div>
+                            <div class="time-slot">
+                                <span>12 PM</span>
+                                <div class="density-indicator medium"></div>
+                            </div>
+                            <div class="time-slot">
+                                <span>3 PM</span>
+                                <div class="density-indicator high"></div>
+                            </div>
+                            <div class="time-slot">
+                                <span>6 PM</span>
+                                <div class="density-indicator medium"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Map Section - Replaces Facilities, Nearby Places, and Quick Navigation -->
+        <section class="map-section">
+            <div class="map-section-header">
+                <h2><i class="fas fa-map-marked-alt"></i> Station Map</h2>
+                <div class="proximity-indicator" id="proximityIndicator">
+                    <i class="fas fa-map-pin"></i> <span id="proximityText">Near Station</span>
+                </div>
+            </div>
+            <div class="map-container" id="dashboardMap"></div>
+        </section>
+
+        <section class="upcoming-trains">
+            <div class="card-header">
+                <h2>Upcoming Trains</h2>
+                <button class="view-all-btn">View All</button>
+            </div>
+            <div class="trains-list">
+                <div class="train-card">
+                    <div class="train-info">
+                        <div class="train-name">Nagpur Express</div>
+                        <div class="train-number">NE-1234</div>
+                    </div>
+                    <div class="train-time">
+                        <div class="departure">
+                            <span class="time">10:30 AM</span>
+                            <span class="status on-time">On Time</span>
+                        </div>
+                        <div class="platform">Platform 3</div>
+                    </div>
+                </div>
+                <div class="train-card">
+                    <div class="train-info">
+                        <div class="train-name">Mumbai Superfast</div>
+                        <div class="train-number">MS-5678</div>
+                    </div>
+                    <div class="train-time">
+                        <div class="departure">
+                            <span class="time">11:45 AM</span>
+                            <span class="status delayed">10 min late</span>
+                        </div>
+                        <div class="platform">Platform 1</div>
+                    </div>
+                </div>
+                <div class="train-card">
+                    <div class="train-info">
+                        <div class="train-name">Delhi Rajdhani</div>
+                        <div class="train-number">DR-9012</div>
+                    </div>
+                    <div class="train-time">
+                        <div class="departure">
+                            <span class="time">1:15 PM</span>
+                            <span class="status on-time">On Time</span>
+                        </div>
+                        <div class="platform">Platform 5</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Railway Navigator</h3>
+                <p>Enhancing your railway travel experience with modern navigation tools.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Help & Support</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Railway Navigator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div class="animation-container">
+        <div class="animated-shape"></div>
+        <div class="animated-shape shape-2"></div>
+    </div>
+
+    <div id="alarmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Set Alarm</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="stationName">Destination Station:</label>
+                    <input type="text" id="stationName" placeholder="Enter destination station">
+                </div>
+                <div class="form-group">
+                    <label for="alarmTime">Alarm Time:</label>
+                    <select id="alarmTime">
+                        <option value="5">5 minutes before arrival</option>
+                        <option value="10" selected>10 minutes before arrival</option>
+                        <option value="15">15 minutes before arrival</option>
+                        <option value="30">30 minutes before arrival</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="alarmSound">Choose Alarm Sound:</label>
+                    <div class="sound-options">
+                        <div class="sound-option">
+                            <input type="radio" id="sound1" name="alarmSound" value="sound1" checked>
+                            <label for="sound1">
+                                <i class="fas fa-bell"></i>
+                                <span>Bell</span>
+                                <button class="play-sound" data-sound="sound1"><i class="fas fa-play"></i></button>
+                            </label>
+                        </div>
+                        <div class="sound-option">
+                            <input type="radio" id="sound2" name="alarmSound" value="sound2">
+                            <label for="sound2">
+                                <i class="fas fa-volume-high"></i>
+                                <span>Chime</span>
+                                <button class="play-sound" data-sound="sound2"><i class="fas fa-play"></i></button>
+                            </label>
+                        </div>
+                        <div class="sound-option">
+                            <input type="radio" id="sound3" name="alarmSound" value="sound3">
+                            <label for="sound3">
+                                <i class="fas fa-music"></i>
+                                <span>Melody</span>
+                                <button class="play-sound" data-sound="sound3"><i class="fas fa-play"></i></button>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmAlarm">Set Alarm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script>
+        // ==================== MAP INITIALIZATION ====================
+        let dashboardMap = null;
+        let userMarker = null;
+        let userAccuracyCircle = null;
+        let facilityMarkers = [];
+        let currentUserLocation = null;
+        const PROXIMITY_THRESHOLD = 500; // meters - show pins when within 500m of station
+
+        // Station coordinates (for proximity detection)
+        const stations = {
+            'dadar': { lat: 19.0176, lng: 72.8562, name: 'Dadar' },
+            'kurla': { lat: 19.0667, lng: 72.8833, name: 'Kurla' }
+        };
+
+        // Facilities index - supports multiple facilities with same name
+        const facilityIndex = new Map(); // key: lowercase search term -> array of facilities
+        const stationLayers = {
+            dadar: L.layerGroup(),
+            kurla: L.layerGroup()
+        };
+
+        const facilityIcons = {
+            default: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-map-pin" style="font-size:18px;color:#2563eb;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Toilet: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-restroom" style="font-size:18px;color:#2563eb;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            ATM: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-money-bill" style="font-size:18px;color:#16a34a;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Food: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-utensils" style="font-size:18px;color:#ea580c;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Ticket_Counter: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-ticket-alt" style="font-size:18px;color:#7c3aed;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Waiting_Area: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-chair" style="font-size:18px;color:#475569;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Information: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-info-circle" style="font-size:18px;color:#0891b2;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Medical: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-briefcase-medical" style="font-size:18px;color:#dc2626;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+            Entrance: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-door-open" style="font-size:18px;color:#0ea5e9;"></i>', iconSize: [18,18], iconAnchor:[9,18]})
+        };
+
+        function initMap() {
+            dashboardMap = L.map('dashboardMap', { zoomControl: false }).setView([19.054, 72.861], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(dashboardMap);
+
+            L.control.zoom({ position: 'bottomright' }).addTo(dashboardMap);
+
+            // Add station layers to map
+            stationLayers.dadar.addTo(dashboardMap);
+            stationLayers.kurla.addTo(dashboardMap);
+
+            // Load facilities for both stations
+            loadFacilitiesForStation('dadar');
+            loadFacilitiesForStation('kurla');
+        }
+
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Earth radius in meters
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function getNearestStation(userLat, userLng) {
+            let nearest = null;
+            let minDist = Infinity;
+            for (const [key, station] of Object.entries(stations)) {
+                const dist = haversineDistance(userLat, userLng, station.lat, station.lng);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = { key, ...station, distance: dist };
+                }
+            }
+            return nearest;
+        }
+
+        function updateProximityIndicator(nearestStation) {
+            const indicator = document.getElementById('proximityIndicator');
+            const text = document.getElementById('proximityText');
+            
+            if (!nearestStation) {
+                indicator.classList.remove('active', 'near', 'far');
+                return;
+            }
+
+            const dist = nearestStation.distance;
+            indicator.classList.add('active');
+            
+            if (dist <= PROXIMITY_THRESHOLD) {
+                indicator.classList.remove('far');
+                indicator.classList.add('near');
+                text.textContent = `Near ${nearestStation.name} (${Math.round(dist)}m)`;
+            } else {
+                indicator.classList.remove('near');
+                indicator.classList.add('far');
+                text.textContent = `Far from stations (${Math.round(dist/1000)}km)`;
+            }
+        }
+
+        function showFacilitiesForStation(stationKey) {
+            // Hide all facilities first
+            stationLayers.dadar.removeFrom(dashboardMap);
+            stationLayers.kurla.removeFrom(dashboardMap);
+
+            // Show facilities for the nearest station
+            if (stationLayers[stationKey]) {
+                stationLayers[stationKey].addTo(dashboardMap);
+            }
+        }
+
+        function hideAllFacilities() {
+            stationLayers.dadar.removeFrom(dashboardMap);
+            stationLayers.kurla.removeFrom(dashboardMap);
+        }
+
+        async function loadFacilitiesForStation(stationKey) {
+            const url = `http://127.0.0.1:5000/api/facilities/${stationKey}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.status !== 'success') return;
+
+                // Clear previous markers
+                stationLayers[stationKey].clearLayers();
+
+                data.facilities.forEach((f) => {
+                    const icon = facilityIcons[f.type] || facilityIcons.default;
+                    const marker = L.marker([f.lat, f.lng], { icon })
+                        .bindPopup(`<b>${f.name}</b><br/><small>${f.type.replaceAll('_',' ')}${f.raw_name ? ' — ' + f.raw_name : ''}</small>`);
+                    marker.addTo(stationLayers[stationKey]);
+
+                    // Index facility with case-insensitive search terms
+                    const nameLower = f.name.toLowerCase();
+                    const typeLower = f.type.toLowerCase().replace('_', ' ');
+                    
+                    // Create search keys: full name, type, station + type, etc.
+                    const searchKeys = [
+                        nameLower,
+                        typeLower,
+                        `${stationKey}_${typeLower}`,
+                        `${stationKey} ${typeLower}`,
+                        `${stationKey}_${nameLower}`, // e.g., "kurla_toilet_1"
+                        `${stationKey} ${nameLower}`, // e.g., "kurla toilet_1"
+                        nameLower.replace(/\d+$/, '').trim(), // Remove trailing numbers for partial matches
+                        nameLower.replace(/_\d+$/, '').trim(), // Remove _1, _2, etc.
+                        `${stationKey} ${nameLower.replace(/_\d+$/, '').trim()}`, // e.g., "kurla toilet"
+                    ];
+
+                    searchKeys.forEach(key => {
+                        if (!facilityIndex.has(key)) {
+                            facilityIndex.set(key, []);
+                        }
+                        facilityIndex.get(key).push({
+                            lat: f.lat,
+                            lng: f.lng,
+                            displayName: f.name,
+                            station: data.station,
+                            type: f.type,
+                            fullName: f.name
+                        });
+                    });
+                });
+            } catch (e) {
+                console.error('Failed to load facilities for', stationKey, e);
+            }
+        }
+
+        function createUserMarker(latlng) {
+            const markerHtml = `
+                <div style="width: 14px; height: 14px; background: #3a86ff; border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                <div style="width: 40px; height: 40px; border: 2px solid #3a86ff; border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); animation: pulse 2s infinite;"></div>
+            `;
+            
+            const icon = L.divIcon({
+                html: markerHtml,
+                className: 'user-location-marker',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            
+            return L.marker(latlng, {
+                icon: icon,
+                zIndexOffset: 1000
+            });
+        }
+
+        function getUserLocation() {
+            if (!navigator.geolocation) {
+                document.getElementById('userLocationDisplay').textContent = 'Geolocation not supported';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                    currentUserLocation = userLatLng;
+                    
+                    if (!userMarker) {
+                        userMarker = createUserMarker(userLatLng).addTo(dashboardMap);
+                        userAccuracyCircle = L.circle(userLatLng, {
+                            radius: position.coords.accuracy,
+                            color: '#3a86ff',
+                            fillColor: '#3a86ff',
+                            fillOpacity: 0.1,
+                            weight: 1
+                        }).addTo(dashboardMap);
+                    } else {
+                        userMarker.setLatLng(userLatLng);
+                        userAccuracyCircle.setLatLng(userLatLng);
+                        userAccuracyCircle.setRadius(position.coords.accuracy);
+                    }
+
+                    dashboardMap.setView(userLatLng, 15);
+
+                    // Update Station Information section
+                    document.getElementById('userLocationDisplay').textContent = 
+                        `${userLatLng.lat.toFixed(6)}, ${userLatLng.lng.toFixed(6)}`;
+
+                    // Check proximity to stations
+                    const nearestStation = getNearestStation(userLatLng.lat, userLatLng.lng);
+                    if (nearestStation) {
+                        // Update Station Information section
+                        document.getElementById('nearestStationDisplay').textContent = nearestStation.name;
+                        document.getElementById('stationDistanceDisplay').textContent = 
+                            nearestStation.distance < 1000 
+                                ? `${Math.round(nearestStation.distance)}m`
+                                : `${(nearestStation.distance / 1000).toFixed(2)}km`;
+
+                        updateProximityIndicator(nearestStation);
+
+                        // Show/hide facilities based on proximity
+                        if (nearestStation.distance <= PROXIMITY_THRESHOLD) {
+                            showFacilitiesForStation(nearestStation.key);
+                        } else {
+                            hideAllFacilities();
+                        }
+                    }
+
+                    // Watch position for updates
+                    navigator.geolocation.watchPosition(
+                        (pos) => {
+                            const newLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                            currentUserLocation = newLatLng;
+                            
+                            if (userMarker) {
+                                userMarker.setLatLng(newLatLng);
+                                userAccuracyCircle.setLatLng(newLatLng);
+                                userAccuracyCircle.setRadius(pos.coords.accuracy);
+                            }
+
+                            // Update Station Information section
+                            document.getElementById('userLocationDisplay').textContent = 
+                                `${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)}`;
+
+                            const nearest = getNearestStation(newLatLng.lat, newLatLng.lng);
+                            if (nearest) {
+                                // Update Station Information section
+                                document.getElementById('nearestStationDisplay').textContent = nearest.name;
+                                document.getElementById('stationDistanceDisplay').textContent = 
+                                    nearest.distance < 1000 
+                                        ? `${Math.round(nearest.distance)}m`
+                                        : `${(nearest.distance / 1000).toFixed(2)}km`;
+
+                                updateProximityIndicator(nearest);
+
+                                if (nearest.distance <= PROXIMITY_THRESHOLD) {
+                                    showFacilitiesForStation(nearest.key);
+                                } else {
+                                    hideAllFacilities();
+                                }
+                            }
+                        },
+                        (error) => console.error('Location watch error:', error),
+                        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+                    );
+                },
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    let errorMsg = 'Location access denied';
+                    if (error.code === 3) {
+                        errorMsg = 'Location request timed out. Please try again.';
+                    } else if (error.code === 1) {
+                        errorMsg = 'Location access denied. Please enable location services.';
+                    }
+                    document.getElementById('userLocationDisplay').textContent = errorMsg;
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+            );
+        }
+
+        // Case-insensitive search with multiple facility support
+        function processSearch(query) {
+            query = query.toLowerCase().trim();
+            
+            if (!query) {
+                showNotification('Please enter a search term.', 'warning');
+                return;
+            }
+
+            if (!currentUserLocation) {
+                showNotification('Please wait for location to be detected.', 'warning');
+                return;
+            }
+
+            // Extract station name from query if present (e.g., "kurla toilet" -> station: "kurla", facility: "toilet")
+            const stationNames = ['dadar', 'kurla'];
+            let targetStation = null;
+            let facilityQuery = query;
+            
+            for (const stationName of stationNames) {
+                if (query.includes(stationName)) {
+                    targetStation = stationName;
+                    facilityQuery = query.replace(stationName, '').trim();
+                    break;
+                }
+            }
+
+            // Find all matching facilities (case-insensitive)
+            const matches = [];
+            const seenFacilities = new Set();
+            
+            // If station is specified, only search facilities from that station
+            const searchKeys = targetStation 
+                ? Array.from(facilityIndex.keys()).filter(key => 
+                    key.includes(targetStation) || key.startsWith(`${targetStation}_`) || key.startsWith(`${targetStation} `)
+                  )
+                : Array.from(facilityIndex.keys());
+            
+            for (const key of searchKeys) {
+                const facilities = facilityIndex.get(key);
+                
+                // Check if key matches the facility query
+                const keyMatches = (!facilityQuery || key.includes(facilityQuery) || facilityQuery.includes(key)) &&
+                                  (!targetStation || facilityQuery || key.includes(targetStation));
+                
+                if (keyMatches || (!facilityQuery && !targetStation && key.includes(query))) {
+                    facilities.forEach(facility => {
+                        // If station specified, only include facilities from that station
+                        if (targetStation && facility.station.toLowerCase() !== targetStation) {
+                            return;
+                        }
+                        
+                        const facilityId = `${facility.lat}_${facility.lng}_${facility.displayName}`;
+                        if (!seenFacilities.has(facilityId)) {
+                            seenFacilities.add(facilityId);
+                            matches.push(facility);
+                        }
+                    });
+                }
+            }
+
+            if (matches.length === 0) {
+                showNotification('No facilities found matching your search.', 'warning');
+                return;
+            }
+
+            // If multiple matches, find the closest one to user
+            let closest = null;
+            let minDist = Infinity;
+            
+            matches.forEach(facility => {
+                const dist = haversineDistance(
+                    currentUserLocation.lat, currentUserLocation.lng,
+                    facility.lat, facility.lng
+                );
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = { ...facility, distance: dist };
+                }
+            });
+
+            if (closest) {
+                // Store destination for navigation
+                sessionStorage.setItem('navigationDestination', JSON.stringify({
+                    lat: closest.lat,
+                    lng: closest.lng,
+                    name: closest.displayName
+                }));
+
+                // Center map on closest facility
+                dashboardMap.setView([closest.lat, closest.lng], 16);
+                
+                // Open popup if marker exists
+                stationLayers[closest.station].eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        const latlng = layer.getLatLng();
+                        if (Math.abs(latlng.lat - closest.lat) < 0.0001 && 
+                            Math.abs(latlng.lng - closest.lng) < 0.0001) {
+                            layer.openPopup();
+                        }
+                    }
+                });
+
+                showNotification(`Found: ${closest.displayName} (${Math.round(closest.distance)}m away). Starting navigation...`, 'success');
+                
+                // Redirect to navigation page immediately (no delay)
+                window.location.href = 'gptmpa1.html';
+            }
+        }
+
+        // ==================== EVENT HANDLERS ====================
+        document.getElementById('startNavigation').addEventListener('click', function () {
+            window.location.href = 'gptmpa1.html';
+        });
+
+        document.getElementById('setAlarm').addEventListener('click', function () {
+            document.getElementById('alarmModal').style.display = 'flex';
+        });
+
+        // View Maps for Paths functionality removed as requested
+
+        document.querySelector('.close-modal').addEventListener('click', function() {
+            document.getElementById('alarmModal').style.display = 'none';
+        });
+
+        document.getElementById('confirmAlarm').addEventListener('click', function () {
+            document.getElementById('alarmModal').style.display = 'none';
+            showNotification('Alarm set for your destination!');
+        });
+
+        // Search handlers
+        function setupSearchHandlers() {
+            const headerSearch = document.getElementById('headerSearch');
+            const headerSearchBtn = document.getElementById('headerSearchBtn');
+            const mobileSearch = document.getElementById('mobileSearch');
+            const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+
+            const handleSearch = () => {
+                const query = headerSearch.value || mobileSearch.value;
+                processSearch(query);
+            };
+
+            headerSearchBtn.addEventListener('click', handleSearch);
+            headerSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSearch();
+            });
+
+            mobileSearchBtn.addEventListener('click', handleSearch);
+            mobileSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSearch();
+            });
+        }
+
+        // Toggle light/dark mode
+        const modeToggle = document.getElementById('modeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && prefersDarkScheme.matches)) {
+            document.body.classList.add('dark-mode');
+            modeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            modeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+        
+        modeToggle.addEventListener('click', function () {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            if (isDarkMode) {
+                modeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                modeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Helper function to show notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            const icon = type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${icon}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            const bgColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : type === 'success' ? '#10b981' : '#3a86ff';
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = bgColor;
+            notification.style.color = 'white';
+            notification.style.padding = '12px 20px';
+            notification.style.borderRadius = '8px';
+            notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            notification.style.zIndex = '2000';
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(20px)';
+            notification.style.transition = 'opacity 0.3s, transform 0.3s';
+            
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateY(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        async function updateArrivalTime() {
+            try {
+                // Use actual user location if available, otherwise skip
+                if (!currentUserLocation) {
+                    // Wait a bit and try again
+                    setTimeout(updateArrivalTime, 2000);
+                    return;
+                }
+
+                const userCoords = {
+                    lat: currentUserLocation.lat,
+                    lng: currentUserLocation.lng
+                };
+
+                // Get nearest station for arrival time calculation
+                const nearestStation = getNearestStation(userCoords.lat, userCoords.lng);
+                if (!nearestStation) {
+                    setTimeout(updateArrivalTime, 2000);
+                    return;
+                }
+
+                // Estimate duration based on distance (walking speed ~5 km/h)
+                const distanceKm = nearestStation.distance / 1000;
+                const duration = Math.round((distanceKm / 5) * 3600); // seconds
+                
+                const arrivalTime = new Date(Date.now() + duration * 1000).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const arrivalTimeElement = document.getElementById('arrivalTime');
+                arrivalTimeElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    arrivalTimeElement.innerText = arrivalTime;
+                    arrivalTimeElement.style.opacity = '1';
+                }, 300);
+
+                setTimeout(updateArrivalTime, 60000);
+            } catch (error) {
+                console.error('Error updating arrival time:', error);
+                setTimeout(updateArrivalTime, 10000);
+            }
+        }
+
+        const toggleBtn = document.querySelector('.toggle-btn');
+        const toggleBtnIcon = document.querySelector('.toggle-btn i');
+        const dropDownMenu = document.querySelector('.dropdown-menu');
+
+        toggleBtn.onclick = function () {
+            dropDownMenu.classList.toggle('open');
+            const isOpen = dropDownMenu.classList.contains('open');
+            toggleBtnIcon.className = isOpen ? 'fas fa-xmark' : 'fas fa-bars';
+        }
+
+        const playSoundButtons = document.querySelectorAll('.play-sound');
+        playSoundButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Playing sound:', this.dataset.sound);
+                const icon = this.querySelector('i');
+                icon.className = 'fas fa-pause';
+                setTimeout(() => {
+                    icon.className = 'fas fa-play';
+                }, 2000);
+            });
+        });
+
+        // Crowd Density Fetch
+        async function fetchCrowdDensity() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/crowd');
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const densitySpan = document.querySelector('#currentCrowd span');
+                    densitySpan.textContent = data.density;
+                    densitySpan.className = '' + data.density.toLowerCase();
+                }
+            } catch (err) {
+                console.error('Failed to fetch crowd density:', err);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            setupSearchHandlers();
+            getUserLocation();
+            updateArrivalTime();
+            fetchCrowdDensity();
+            
+            document.querySelector('.refresh-btn').addEventListener('click', function() {
+                this.classList.add('rotating');
+                fetchCrowdDensity().then(() => {
+                    setTimeout(() => this.classList.remove('rotating'), 800);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

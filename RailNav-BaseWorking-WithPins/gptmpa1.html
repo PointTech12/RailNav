@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Professional AR Railway Navigation" />
+  <title>Railway Navigator</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Global Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #3a86ff;
+      --primary-dark: #2563eb;
+      --secondary: #ff006e;
+      --accent: #ffbe0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-full: 9999px;
+      --transition: all 0.3s ease;
+    }
+    
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      overflow: hidden; 
+      background-color: var(--light); 
+      height: 100vh; 
+      display: flex; 
+      flex-direction: column;
+      color: var(--dark);
+    }
+    
+    #map { 
+      flex: 1; 
+      width: 100%; 
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-md); 
+      z-index: 1000;
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      border-bottom-left-radius: var(--radius-lg);
+      border-bottom-right-radius: var(--radius-lg);
+    }
+    
+    .top-bar input {
+      flex: 1; 
+      padding: 14px 20px; 
+      border: 1px solid var(--gray); 
+      border-radius: var(--radius-full);
+      background: var(--light); 
+      font-size: 16px; 
+      outline: none;
+      transition: var(--transition);
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .top-bar input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+    }
+    
+    .top-bar button {
+      background: none; 
+      border: none; 
+      font-size: 20px; 
+      cursor: pointer; 
+      color: var(--primary);
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    
+    .top-bar button:hover {
+      background: rgba(58, 134, 255, 0.1);
+      transform: scale(1.05);
+    }
+    
+    .top-bar .back-button {
+      background: var(--primary);
+      color: white;
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      font-size: 18px;
+    }
+    
+    .top-bar .back-button:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    /* Info Panel */
+    .info-panel {
+      position: absolute; 
+      bottom: 90px; 
+      left: 16px; 
+      right: 16px;
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg); 
+      padding: 20px;
+      box-shadow: var(--shadow-lg); 
+      z-index: 1000; 
+      display: none;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    
+    .info-panel.active {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .info-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    
+    .info-panel-header h3 {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 18px;
+    }
+    
+    .info-panel-header button {
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-size: 18px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .info-panel-header button:hover {
+      color: var(--danger);
+    }
+    
+    .info-panel p { 
+      margin: 12px 0; 
+      font-size: 15px; 
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+    }
+    
+    .info-panel p i {
+      margin-right: 12px;
+      color: var(--primary);
+      width: 24px;
+      text-align: center;
+    }
+    
+    .info-panel p span { 
+      font-weight: 600; 
+      color: var(--primary); 
+      margin-left: 5px;
+    }
+
+    /* Button Container */
+    .button-container {
+      position: absolute; 
+      bottom: 20px; 
+      left: 16px; 
+      right: 16px;
+      display: flex; 
+      justify-content: space-between; 
+      gap: 12px; 
+      z-index: 1001;
+    }
+    
+    .button-container button {
+      flex: 1; 
+      padding: 16px; 
+      border: none; 
+      border-radius: var(--radius-full);
+      font-size: 16px; 
+      font-weight: 500; 
+      color: white; 
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-md);
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    #start-nav-btn { 
+      background: var(--primary);
+    }
+    
+    #start-nav-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    #ar-btn { 
+      background: var(--secondary);
+    }
+    
+    #ar-btn:hover {
+      background: #d90062;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    #ar-btn:disabled { 
+      background: var(--gray); 
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* AR Container */
+    #ar-container {
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 0;
+      background: #000; 
+      z-index: 2000; 
+      overflow: hidden; 
+      transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+    }
+    
+    #ar-container.active { 
+      height: 60vh;
+      box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+    }
+    
+    #ar-container.fullscreen {
+      height: 100vh !important;
+      border-radius: 0;
+    }
+    
+    #ar-container video {
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover;
+    }
+    
+    /* AR Canvas over video */
+    #ar-container canvas {
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      pointer-events: none; 
+      z-index: 10;
+    }
+    
+    /* AR Controls */
+    .ar-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 20;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .ar-controls button {
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .ar-controls button:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    /* AR Navigation UI */
+    .ar-navigation-ui {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .ar-direction-indicator {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      padding: 12px 24px;
+      color: white;
+      font-weight: 500;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ar-compass {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 20;
+    }
+
+    .ar-compass-inner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(58, 134, 255, 0.2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ar-compass-needle {
+      position: absolute;
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(to bottom, #ff006e 0%, #ff006e 50%, white 50%, white 100%);
+      transform-origin: center center;
+      transition: transform 0.3s ease;
+    }
+
+    .ar-distance-meter {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 20;
+    }
+
+    /* Leaflet Routing Machine */
+    .leaflet-routing-container {
+      background: white; 
+      border: none; 
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--radius-lg); 
+      width: 100%; 
+      max-width: 320px; 
+      padding: 15px; 
+      font-size: 14px; 
+      z-index: 1000;
+      margin-top: 10px !important;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .leaflet-routing-alt {
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .leaflet-routing-alt h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    .leaflet-routing-alt h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 8px 0;
+    }
+    
+    .leaflet-routing-alt table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    .leaflet-routing-alt tr:hover {
+      background: rgba(58, 134, 255, 0.05);
+    }
+    
+    .leaflet-routing-alt td {
+      padding: 8px 5px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    
+    /* Loading Indicator */
+    .loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1500;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .loading-indicator.active {
+      display: flex;
+    }
+    
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(58, 134, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Pulse effect for user location */
+    .user-marker-pulse {
+      border-radius: 50%;
+      height: 14px;
+      width: 14px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--primary);
+    }
+    
+    .user-marker-pulse:after {
+      content: "";
+      border-radius: 50%;
+      height: 40px;
+      width: 40px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--primary);
+      opacity: 0;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.4;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* AR Navigation Arrow */
+    .ar-navigation-arrow {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+      transform-origin: center center;
+      transition: transform 0.3s ease-out;
+    }
+
+    .ar-arrow-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: pulse-subtle 2s infinite;
+    }
+
+    .ar-arrow-inner {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(58, 134, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ar-arrow-pointer {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 30px solid var(--primary);
+      transform-origin: center 70%;
+      top: -5px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    .ar-arrow-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes pulse-subtle {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+      .top-bar { 
+        padding: 12px; 
+      }
+      
+      .top-bar input { 
+        padding: 12px 16px; 
+        font-size: 15px; 
+      }
+      
+      .info-panel { 
+        bottom: 85px; 
+        padding: 15px; 
+      }
+      
+      .info-panel p { 
+        font-size: 14px; 
+      }
+      
+      .button-container button { 
+        padding: 14px; 
+        font-size: 15px; 
+      }
+      
+      #ar-container.active { 
+        height: 60vh; 
+      }
+
+      .ar-navigation-arrow {
+        width: 100px;
+        height: 100px;
+      }
+
+      .ar-arrow-inner {
+        width: 70px;
+        height: 70px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .top-bar { 
+        padding: 10px; 
+      }
+      
+      .top-bar input { 
+        padding: 10px 14px; 
+        font-size: 14px; 
+      }
+      
+      .button-container { 
+        flex-direction: column; 
+        gap: 10px; 
+      }
+      
+      .button-container button { 
+        padding: 12px; 
+        font-size: 14px; 
+      }
+      
+      .info-panel-header h3 {
+        font-size: 16px;
+      }
+      
+      .info-panel p {
+        font-size: 13px;
+      }
+
+      .ar-navigation-arrow {
+        width: 90px;
+        height: 90px;
+      }
+
+      .ar-arrow-inner {
+        width: 60px;
+        height: 60px;
+      }
+
+      .ar-arrow-pointer {
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 24px solid var(--primary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button id="back-btn" class="back-button" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-left"></i></button>
+    <input type="text" id="search" placeholder="Search destination" aria-label="Search destination" />
+    <button id="voice-search-btn"><i class="fas fa-microphone"></i></button>
+  </div>
+  
+  <div id="map"></div>
+  
+  <div class="info-panel" id="info-panel">
+    <div class="info-panel-header">
+      <h3>Navigation Details</h3>
+      <button id="close-info"><i class="fas fa-times"></i></button>
+    </div>
+    <p><i class="fas fa-route"></i>Distance: <span id="distance">--</span></p>
+    <p><i class="fas fa-clock"></i>Time: <span id="time">--</span></p>
+    <p><i class="fas fa-hourglass-half"></i>ETA: <span id="eta">--</span></p>
+    <p><i class="fas fa-walking"></i>Next Step: <span id="next-step">--</span></p>
+  </div>
+  
+  <div class="button-container">
+    <button id="start-nav-btn"><i class="fas fa-map-marker-alt"></i> Start Navigation</button>
+    <button id="ar-btn" disabled><i class="fas fa-vr-cardboard"></i> Enable AR</button>
+  </div>
+  
+  <div id="ar-container">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="ar-canvas"></canvas>
+    
+    <div class="ar-compass">
+      <div class="ar-compass-inner">
+        <div class="ar-compass-needle" id="compass-needle"></div>
+      </div>
+    </div>
+    
+    <div class="ar-controls">
+      <button id="close-ar"><i class="fas fa-times"></i></button>
+      <button id="toggle-fullscreen-ar"><i class="fas fa-expand"></i></button>
+    </div>
+    
+    <div class="ar-navigation-ui">
+      <div class="ar-navigation-arrow" id="ar-navigation-arrow">
+        <div class="ar-arrow-outer">
+          <div class="ar-arrow-inner">
+            <div class="ar-arrow-pointer" id="ar-arrow-pointer"></div>
+            <div class="ar-arrow-dot"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ar-direction-indicator" id="ar-direction-text">
+        <i class="fas fa-directions"></i>
+        <span>Follow the arrow</span>
+      </div>
+    </div>
+    
+    <div class="ar-distance-meter" id="ar-distance-meter">
+      <i class="fas fa-map-marker-alt"></i>
+      <span id="ar-distance-text">0.00 km</span>
+    </div>
+  </div>
+  
+  <div class="loading-indicator" id="loading-indicator">
+    <div class="loading-spinner"></div>
+    <span>Calculating route...</span>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    /*********************
+     * INITIALIZATION
+     *********************/
+    const map = L.map('map', { zoomControl: false }).setView([21.1522, 79.0888], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Add zoom control to bottom right
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(map);
+
+    // Global State Variables
+    let userMarker = null;
+    let userAccuracyCircle = null;
+    let destinationLatLng = null;
+    let routingControl = null;
+    let isARModeEnabled = false;
+    let arrowCanvas = document.getElementById('ar-canvas');
+    let arrowContext = arrowCanvas.getContext('2d');
+    let currentHeading = 0;
+    let routeCoordinates = [];
+    let instructions = [];
+    let deviceOrientationListenerAdded = false;
+    let nextWaypointIndex = 0;
+    let routeColoredSegments = []; // Track colored route segments for cleanup
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const infoPanel = document.getElementById('info-panel');
+    const arNavigationArrow = document.getElementById('ar-navigation-arrow');
+    const arArrowPointer = document.getElementById('ar-arrow-pointer');
+    const compassNeedle = document.getElementById('compass-needle');
+    const arDirectionText = document.getElementById('ar-direction-text');
+    const arDistanceText = document.getElementById('ar-distance-text');
+
+    // Create custom user location marker
+    function createUserMarker(latlng) {
+      const markerHtml = `
+        <div class="user-marker-pulse"></div>
+      `;
+      
+      const icon = L.divIcon({
+        html: markerHtml,
+        className: 'user-location-marker',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      
+      return L.marker(latlng, {
+        icon: icon,
+        zIndexOffset: 1000
+      });
+    }
+
+    // Facilities index loaded from backend for Dadar and Kurla
+    // Supports multiple facilities with same name - stores arrays of facilities
+    const facilityIndex = new Map(); // searchKey -> [{lat, lng, displayName, station, type}, ...]
+    const stationLayers = {
+      dadar: L.layerGroup(), // Don't add to map initially - hide all pins
+      kurla: L.layerGroup()  // Don't add to map initially - hide all pins
+    };
+    let destinationMarker = null; // Store the destination marker separately
+    const facilityIcons = {
+      default: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-map-pin" style="font-size:18px;color:#2563eb;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Toilet: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-restroom" style="font-size:18px;color:#2563eb;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      ATM: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-money-bill" style="font-size:18px;color:#16a34a;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Food: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-utensils" style="font-size:18px;color:#ea580c;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Ticket_Counter: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-ticket-alt" style="font-size:18px;color:#7c3aed;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Waiting_Area: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-chair" style="font-size:18px;color:#475569;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Information: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-info-circle" style="font-size:18px;color:#0891b2;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Medical: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-briefcase-medical" style="font-size:18px;color:#dc2626;"></i>', iconSize: [18,18], iconAnchor:[9,18]}),
+      Entrance: L.divIcon({ className: 'facility-marker', html: '<i class="fas fa-door-open" style="font-size:18px;color:#0ea5e9;"></i>', iconSize: [18,18], iconAnchor:[9,18]})
+    };
+
+    async function loadFacilitiesForStation(stationKey) {
+      const url = `http://127.0.0.1:5000/api/facilities/${stationKey}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status !== 'success') return;
+
+        // Clear previous
+        stationLayers[stationKey].clearLayers();
+
+        data.facilities.forEach((f) => {
+          const icon = facilityIcons[f.type] || facilityIcons.default;
+          const marker = L.marker([f.lat, f.lng], { icon })
+            .bindPopup(`<b>${f.name}</b><br/><small>${f.type.replaceAll('_',' ')}${f.raw_name ? ' — ' + f.raw_name : ''}</small>`);
+          // Don't add to map - keep hidden until searched
+          marker.addTo(stationLayers[stationKey]);
+
+          // Create multiple search keys for case-insensitive matching
+          const nameLower = f.name.toLowerCase();
+          const typeLower = f.type.toLowerCase().replace(/_/g, ' ');
+          const stationLower = data.station.toLowerCase();
+          
+          // Search keys: full name, type, station+type, name without numbers, etc.
+          // Create comprehensive search keys for better matching
+          const searchKeys = [
+            nameLower, // Full name: "dadar_toilet_1"
+            typeLower, // Type: "toilet"
+            `${stationLower}_${typeLower}`, // "dadar_toilet"
+            `${stationLower} ${typeLower}`, // "dadar toilet"
+            `${stationLower}_${nameLower}`, // "dadar_dadar_toilet_1"
+            `${stationLower} ${nameLower}`, // "dadar dadar_toilet_1"
+            nameLower.replace(/\d+$/, '').trim(), // "dadar_toilet_" (remove trailing numbers)
+            nameLower.replace(/_\d+$/, '').trim(), // "dadar_toilet" (remove _1, _2, etc.)
+            `${stationLower} ${nameLower.replace(/_\d+$/, '').trim()}`, // "dadar toilet"
+            `${stationLower}_${nameLower.replace(/_\d+$/, '').trim()}`, // "dadar_toilet"
+          ];
+
+          const facilityData = {
+            lat: f.lat,
+            lng: f.lng,
+            displayName: f.name,
+            station: data.station,
+            type: f.type,
+            fullName: f.name
+          };
+
+          // Add facility to all relevant search keys
+          searchKeys.forEach(key => {
+            if (!facilityIndex.has(key)) {
+              facilityIndex.set(key, []);
+            }
+            facilityIndex.get(key).push(facilityData);
+          });
+        });
+      } catch (e) {
+        console.error('Failed to load facilities for', stationKey, e);
+      }
+    }
+
+    /*********************
+     * GEOLOCATION FUNCTIONS
+     *********************/
+    function getUserLocation(callback) {
+      // Only show loading indicator if we don't have a location yet
+      if (!userMarker) {
+        loadingIndicator.classList.add('active');
+      }
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+            const accuracy = position.coords.accuracy;
+            
+            if (!userMarker) {
+              userMarker = createUserMarker(userLatLng).addTo(map);
+              
+              // Add accuracy circle
+              userAccuracyCircle = L.circle(userLatLng, {
+                radius: accuracy,
+                color: '#3a86ff',
+                fillColor: '#3a86ff',
+                fillOpacity: 0.1,
+                weight: 1
+              }).addTo(map);
+            } else {
+              userMarker.setLatLng(userLatLng);
+              userAccuracyCircle.setLatLng(userLatLng);
+              userAccuracyCircle.setRadius(accuracy);
+            }
+            
+            map.panTo(userLatLng, { animate: true });
+            loadingIndicator.classList.remove('active');
+            
+            if (callback) callback(userLatLng);
+          },
+          (error) => {
+            loadingIndicator.classList.remove('active');
+            console.error('Geolocation error:', error);
+            
+            let errorMsg = 'Unable to retrieve your location.';
+            if (error.code === 1) {
+              errorMsg = 'Location access denied. Please enable location services.';
+            } else if (error.code === 2) {
+              errorMsg = 'Location unavailable. Please try again.';
+            } else if (error.code === 3) {
+              errorMsg = 'Location request timed out. Please try again.';
+              // Retry once with lower accuracy if timeout occurs
+              setTimeout(() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                      if (!userMarker) {
+                        userMarker = createUserMarker(userLatLng).addTo(map);
+                      } else {
+                        userMarker.setLatLng(userLatLng);
+                      }
+                      map.panTo(userLatLng, { animate: true });
+                      if (callback) callback(userLatLng);
+                    },
+                    () => {}, // Silently fail on retry
+                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                  );
+                }
+              }, 1000);
+              return; // Don't show error immediately, let retry happen
+            }
+            
+            showNotification(errorMsg, 'error');
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 } // Increased timeout to 15s, allow cached location up to 30s
+        );
+      } else {
+        loadingIndicator.classList.remove('active');
+        showNotification('Geolocation is not supported by your browser.', 'error');
+      }
+    }
+
+    function watchUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          (position) => {
+            const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+            const accuracy = position.coords.accuracy;
+            
+            if (userMarker) {
+              userMarker.setLatLng(userLatLng);
+              userAccuracyCircle.setLatLng(userLatLng);
+              userAccuracyCircle.setRadius(accuracy);
+            }
+            
+            if (destinationLatLng && (routingControl || window.currentRoute)) {
+              updateNavigationInfo(userLatLng);
+              
+              if (isARModeEnabled) {
+                updateARNavigation(userLatLng);
+              }
+              
+              // Throttle route updates - only update if user moved significantly (more than 50m)
+              if (!window.lastRouteUpdate || 
+                  userLatLng.distanceTo(window.lastRouteUpdate) > 50) {
+                updateRoute(userLatLng);
+                window.lastRouteUpdate = userLatLng;
+              }
+            }
+          },
+          (error) => {
+            console.error('Location watch failed:', error);
+          },
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 } // Allow cached location for faster updates
+        );
+      }
+    }
+
+    /*********************
+     * ROUTING & NAVIGATION
+     *********************/
+    
+    /**
+     * Cancel/clear ongoing navigation
+     * Removes all route elements, markers, and resets navigation state
+     */
+    function cancelOngoingNavigation() {
+      // Remove routing control if exists
+      if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+      }
+      
+      // Remove main route polyline
+      if (window.currentRoute) {
+        map.removeLayer(window.currentRoute);
+        window.currentRoute = null;
+      }
+      
+      // Remove all colored route segments
+      routeColoredSegments.forEach(segment => {
+        if (segment && map.hasLayer(segment)) {
+          map.removeLayer(segment);
+        }
+      });
+      routeColoredSegments = [];
+      
+      // Clear route data
+      routeCoordinates = [];
+      instructions = [];
+      nextWaypointIndex = 0;
+      window.lastRouteUpdate = null;
+      
+      // Reset navigation info panel
+      if (infoPanel) {
+        infoPanel.classList.remove('active');
+      }
+      
+      // Disable AR mode if active
+      if (isARModeEnabled) {
+        isARModeEnabled = false;
+        const arOverlay = document.getElementById('ar-overlay');
+        if (arOverlay) {
+          arOverlay.style.display = 'none';
+        }
+      }
+      
+      // Disable AR button
+      const arBtn = document.getElementById('ar-btn');
+      if (arBtn) {
+        arBtn.disabled = true;
+      }
+      
+      // Clear navigation info display
+      const distanceEl = document.getElementById('distance');
+      const timeEl = document.getElementById('time');
+      const etaEl = document.getElementById('eta');
+      const nextStepEl = document.getElementById('next-step');
+      
+      if (distanceEl) distanceEl.innerHTML = '--';
+      if (timeEl) timeEl.innerHTML = '--';
+      if (etaEl) etaEl.innerHTML = '--';
+      if (nextStepEl) nextStepEl.innerHTML = 'No active navigation';
+      
+      console.log('✅ Cancelled ongoing navigation');
+    }
+    
+    async function updateRoute(userLatLng, retryCount = 0) {
+      loadingIndicator.classList.add('active');
+      
+      // Clear any existing navigation first
+      if (routingControl) map.removeControl(routingControl);
+      
+      // Remove any existing route polyline
+      if (window.currentRoute) {
+        map.removeLayer(window.currentRoute);
+        window.currentRoute = null;
+      }
+      
+      // Clear colored segments
+      routeColoredSegments.forEach(segment => {
+        if (segment && map.hasLayer(segment)) {
+          map.removeLayer(segment);
+        }
+      });
+      routeColoredSegments = [];
+      
+      try {
+        // Call backend API that only uses footpaths
+        const originStr = `${userLatLng.lat},${userLatLng.lng}`;
+        const destStr = `${destinationLatLng.lat},${destinationLatLng.lng}`;
+        const apiUrl = `http://127.0.0.1:5000/api/navigation?origin=${originStr}&dest=${destStr}&radius_m=1000`;
+        
+        console.log('🔵 Calling footpath-only navigation API:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        // Display the JSON response in console (for debugging)
+        console.log('📦 Full JSON Response from Backend API:', JSON.stringify(data, null, 2));
+        
+        // On-page JSON display commented out - uncomment below if needed for debugging
+        /*
+        if (window.apiResponseDisplay) {
+          document.body.removeChild(window.apiResponseDisplay);
+        }
+        window.apiResponseDisplay = document.createElement('div');
+        window.apiResponseDisplay.style.cssText = `
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          max-width: 400px;
+          max-height: 300px;
+          overflow-y: auto;
+          background: white;
+          border: 2px solid #3a86ff;
+          border-radius: 8px;
+          padding: 15px;
+          font-family: monospace;
+          font-size: 11px;
+          z-index: 3000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        window.apiResponseDisplay.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: #3a86ff;">API Response (Footpaths Only)</strong>
+            <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer;">×</button>
+          </div>
+          <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(data, null, 2)}</pre>
+        `;
+        document.body.appendChild(window.apiResponseDisplay);
+        */
+        
+        if (data.status === 'success' && data.route && data.route.length > 0) {
+          // Convert route coordinates to LatLng array
+          const latlngs = data.route.map(pt => [pt.lat, pt.lng]);
+          
+          // Store route coordinates for navigation info
+          routeCoordinates = data.route.map(pt => ({ lat: pt.lat, lng: pt.lng }));
+          
+          // Create simple instructions from route segments
+          instructions = [];
+          for (let i = 0; i < routeCoordinates.length - 1; i++) {
+            instructions.push({
+              index: i,
+              text: i === 0 ? 'Start navigation' : `Continue on footpath for ${(data.meta.distance_m / 1000).toFixed(2)} km`
+            });
+          }
+          nextWaypointIndex = 0;
+          
+          // Draw the route on the map
+          window.currentRoute = L.polyline(latlngs, {
+            color: '#3a86ff',
+            weight: 6,
+            opacity: 0.8
+          }).addTo(map);
+          
+          // Add colored segments if available
+          if (data.route_colored && data.route_colored.length > 0) {
+            const colorMap = {
+              'foot_path': '#16a34a',
+              'path': '#fb923c',
+              'sidewalk': '#22c55e',
+              'steps': '#ef4444',
+              'pedestrian_street': '#3b82f6',
+              'informal_path': '#f43f5e',
+              'highway': '#808080'
+            };
+            
+            data.route_colored.forEach(seg => {
+              const segLatlngs = [
+                [seg.from.lat, seg.from.lng],
+                [seg.to.lat, seg.to.lng]
+              ];
+              const color = colorMap[seg.category] || '#3a86ff';
+              const segment = L.polyline(segLatlngs, {
+                color: color,
+                weight: seg.is_highway ? 3 : 5,
+                opacity: seg.is_highway ? 0.5 : 0.8,
+                dashArray: seg.is_highway ? '5, 10' : null
+              }).addTo(map);
+              routeColoredSegments.push(segment); // Track for cleanup
+            });
+          }
+          
+          // Fit map to show the route
+          map.fitBounds(window.currentRoute.getBounds(), { padding: [50, 50] });
+          
+          // Update navigation info
+          updateNavigationInfo(userLatLng, data);
+          infoPanel.classList.add('active');
+          document.getElementById('ar-btn').disabled = false;
+          
+          loadingIndicator.classList.remove('active');
+        } else {
+          loadingIndicator.classList.remove('active');
+          const errorMsg = data.message || 'No footpath route found between points';
+          console.error('❌ Navigation API error:', data);
+          showNotification(errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch footpath route:', error);
+        loadingIndicator.classList.remove('active');
+        
+        if (retryCount < 3) {
+          setTimeout(() => updateRoute(userLatLng, retryCount + 1), 1000);
+        } else {
+          showNotification('Failed to calculate footpath route. Please try again.', 'error');
+        }
+      }
+    }
+
+    function updateNavigationInfo(userLatLng, apiData = null) {
+      if (!routeCoordinates.length) return;
+      
+      // Use backend API data if available (footpath-only routing)
+      let totalDistance, totalTime;
+      if (apiData && apiData.meta) {
+        totalDistance = apiData.meta.distance_m / 1000; // km
+        // Estimate walking time: average walking speed ~5 km/h
+        totalTime = (apiData.meta.distance_m / 1000) / 5 * 60; // minutes
+      } else if (routingControl && routingControl._routes?.[0]?.summary) {
+        // Fallback to OSRM data if available
+        totalDistance = userLatLng.distanceTo(destinationLatLng) / 1000; // km
+        totalTime = routingControl._routes[0].summary.totalTime / 60; // mins
+      } else {
+        // Calculate from coordinates
+        totalDistance = userLatLng.distanceTo(destinationLatLng) / 1000; // km
+        totalTime = (totalDistance / 5) * 60; // Estimate: 5 km/h walking speed
+      }
+      
+      const eta = new Date(Date.now() + totalTime * 60 * 1000).toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      
+      // Find next instruction
+      let nextInstruction = { text: 'Arrived at destination' };
+      let minDistance = Infinity;
+      let closestIndex = 0;
+      
+      // Find the closest point on the route to the user
+      for (let i = 0; i < routeCoordinates.length; i++) {
+        const point = routeCoordinates[i];
+        const distance = L.latLng(point.lat, point.lng).distanceTo(userLatLng);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = i;
+        }
+      }
+      
+      // Find the next instruction after the closest point
+      if (instructions.length > 0) {
+        for (let i = 0; i < instructions.length; i++) {
+          if (instructions[i].index > closestIndex) {
+            nextInstruction = instructions[i];
+            nextWaypointIndex = i;
+            break;
+          }
+        }
+      } else {
+        // Default instruction for footpath navigation
+        nextInstruction = { text: 'Follow the footpath route' };
+      }
+
+      document.getElementById('distance').innerHTML = `${totalDistance.toFixed(2)} km`;
+      document.getElementById('time').innerHTML = `${totalTime.toFixed(1)} mins`;
+      document.getElementById('eta').innerHTML = eta;
+      document.getElementById('next-step').innerHTML = nextInstruction.text;
+      
+      // Update AR direction text if AR is enabled
+      if (isARModeEnabled) {
+        arDirectionText.innerHTML = `<i class="fas fa-directions"></i><span>${nextInstruction.text}</span>`;
+        arDistanceText.innerHTML = `${totalDistance.toFixed(2)} km`;
+      }
+    }
+
+    /*********************
+     * SEARCH & VOICE HANDLING
+     *********************/
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // Earth radius in meters
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function processSearch(query) {
+      const originalQuery = query;
+      query = query.toLowerCase().trim();
+      
+      if (!query) {
+        showNotification('Please enter a destination.', 'warning');
+        return;
+      }
+      
+      // Cancel any ongoing navigation before starting new search
+      if (destinationLatLng || window.currentRoute || routingControl) {
+        cancelOngoingNavigation();
+        showNotification('Cancelled previous navigation. Starting new route...', 'info');
+      }
+      
+      loadingIndicator.classList.add('active');
+      
+      // Extract station name from query if present (e.g., "kurla toilet" -> station: "kurla", facility: "toilet")
+      const stationNames = ['dadar', 'kurla'];
+      let targetStation = null;
+      let facilityQuery = query;
+      
+      for (const stationName of stationNames) {
+        if (query.includes(stationName)) {
+          targetStation = stationName;
+          facilityQuery = query.replace(stationName, '').trim();
+          break;
+        }
+      }
+      
+      // Case-insensitive search with multiple facility support
+      const matches = [];
+      const seenFacilities = new Set(); // Avoid duplicates
+      
+      // If station is specified, only search facilities from that station
+      const searchKeys = targetStation 
+        ? Array.from(facilityIndex.keys()).filter(key => 
+            key.includes(targetStation) || key.startsWith(`${targetStation}_`) || key.startsWith(`${targetStation} `)
+          )
+        : Array.from(facilityIndex.keys());
+      
+      for (const key of searchKeys) {
+        const facilities = facilityIndex.get(key);
+        const keyLower = key.toLowerCase();
+        
+        // More precise matching: check if query matches the facility query or key
+        const keyMatches = (!facilityQuery || keyLower.includes(facilityQuery) || facilityQuery.includes(keyLower)) &&
+                          (!targetStation || facilityQuery || keyLower.includes(targetStation));
+        
+        // Also check exact name match for better precision
+        const exactMatch = keyLower === query || keyLower === facilityQuery;
+        
+        if (keyMatches || exactMatch || (!facilityQuery && !targetStation && keyLower.includes(query))) {
+          facilities.forEach(facility => {
+            // If station specified, only include facilities from that station
+            if (targetStation && facility.station.toLowerCase() !== targetStation) {
+              return;
+            }
+            
+            const facilityId = `${facility.lat}_${facility.lng}_${facility.displayName}`;
+            if (!seenFacilities.has(facilityId)) {
+              seenFacilities.add(facilityId);
+              
+              // Prioritize exact matches
+              const facilityNameLower = facility.displayName.toLowerCase();
+              const isExactMatch = facilityNameLower === query || facilityNameLower === originalQuery.toLowerCase();
+              matches.push({ ...facility, isExactMatch, matchScore: isExactMatch ? 100 : 0 });
+            }
+          });
+        }
+      }
+
+      if (matches.length > 0) {
+        // Sort matches: exact matches first, then by distance
+        getUserLocation((userLatLng) => {
+          // Calculate distance and score for each match
+          matches.forEach(facility => {
+            const dist = haversineDistance(
+              userLatLng.lat, userLatLng.lng,
+              facility.lat, facility.lng
+            );
+            facility.distance = dist;
+            // Boost score for exact matches
+            facility.matchScore = (facility.isExactMatch ? 1000 : 0) - dist; // Exact matches prioritized, then closest
+          });
+          
+          // Sort by match score (exact matches first, then closest)
+          matches.sort((a, b) => b.matchScore - a.matchScore);
+          
+          // Select the best match
+          const closest = matches[0];
+
+          if (closest) {
+            destinationLatLng = L.latLng(closest.lat, closest.lng);
+            
+            // Hide all facility pins
+            stationLayers.dadar.removeFrom(map);
+            stationLayers.kurla.removeFrom(map);
+            
+            // Remove previous destination marker
+            if (destinationMarker) {
+              map.removeLayer(destinationMarker);
+            }
+            
+            // Add destination marker (only the searched facility)
+            destinationMarker = L.marker(destinationLatLng, {
+              icon: L.divIcon({
+                className: 'destination-marker',
+                html: '<i class="fas fa-map-marker-alt" style="font-size: 24px; color: #ff006e;"></i>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+              })
+            }).addTo(map).bindPopup(`<b>${closest.displayName}</b><br/><small>${Math.round(closest.distance)}m away</small>`).openPopup();
+            
+            updateRoute(userLatLng);
+            loadingIndicator.classList.remove('active');
+            
+            if (matches.length > 1) {
+              const matchType = closest.isExactMatch ? 'exact match' : 'closest match';
+              showNotification(`Found ${matches.length} matches. Selected ${matchType}: ${closest.displayName}`, 'info');
+            } else {
+              showNotification(`Navigating to: ${closest.displayName}`, 'success');
+            }
+          }
+        });
+      } else {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+          .then(res => res.json())
+          .then(data => {
+            loadingIndicator.classList.remove('active');
+            
+            if (data.length) {
+              destinationLatLng = L.latLng(parseFloat(data[0].lat), parseFloat(data[0].lon));
+              
+              // Clear previous markers
+              map.eachLayer(layer => {
+                if (layer instanceof L.Marker && layer !== userMarker) {
+                  map.removeLayer(layer);
+                }
+              });
+              
+              // Add destination marker
+              L.marker(destinationLatLng, {
+                icon: L.divIcon({
+                  className: 'destination-marker',
+                  html: '<i class="fas fa-map-marker-alt" style="font-size: 24px; color: #ff006e;"></i>',
+                  iconSize: [24, 24],
+                  iconAnchor: [12, 24]
+                })
+              }).addTo(map).bindPopup(`<b>${data[0].display_name}</b>`).openPopup();
+              
+              getUserLocation((userLatLng) => updateRoute(userLatLng));
+            } else {
+              showNotification('Location not found! Please try a different search term.', 'warning');
+            }
+          })
+          .catch(err => {
+            loadingIndicator.classList.remove('active');
+            console.error('Search error:', err);
+            showNotification('Search failed. Please check your connection and try again.', 'error');
+          });
+      }
+    }
+
+    // Helper function to show notifications
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Add styles dynamically
+      notification.style.position = 'fixed';
+      notification.style.top = '80px';
+      notification.style.left = '50%';
+      notification.style.transform = 'translateX(-50%)';
+      notification.style.backgroundColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3a86ff';
+      notification.style.color = 'white';
+      notification.style.padding = '12px 20px';
+      notification.style.borderRadius = '8px';
+      notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      notification.style.zIndex = '2000';
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.3s, transform 0.3s';
+      
+      // Animation
+      setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(-50%) translateY(0)';
+      }, 10);
+      
+      // Auto remove after 4 seconds
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(-50%) translateY(-20px)';
+        
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 4000);
+    }
+
+    document.getElementById('search').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        processSearch(e.target.value);
+      }
+    });
+
+    document.getElementById('voice-search-btn').addEventListener('click', () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        
+        // Show listening indicator
+        const searchInput = document.getElementById('search');
+        const originalPlaceholder = searchInput.placeholder;
+        searchInput.placeholder = '🎤 Listening...';
+        document.getElementById('voice-search-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          searchInput.value = transcript;
+          searchInput.placeholder = originalPlaceholder;
+          document.getElementById('voice-search-btn').innerHTML = '<i class="fas fa-microphone"></i>';
+          processSearch(transcript);
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Voice recognition error:', event.error);
+          searchInput.placeholder = originalPlaceholder;
+          document.getElementById('voice-search-btn').innerHTML = '<i class="fas fa-microphone"></i>';
+          showNotification('Voice recognition failed. Please try again or type your search.', 'warning');
+        };
+        
+        recognition.onend = () => {
+          searchInput.placeholder = originalPlaceholder;
+          document.getElementById('voice-search-btn').innerHTML = '<i class="fas fa-microphone"></i>';
+        };
+        
+        recognition.start();
+      } else {
+        showNotification('Voice search is not supported in your browser.', 'warning');
+      }
+    });
+
+    /*********************
+     * BUTTONS & NAVIGATION HANDLERS
+     *********************/
+    document.getElementById('start-nav-btn').addEventListener('click', () => {
+      getUserLocation((userLatLng) => {
+        if (destinationLatLng) {
+          updateRoute(userLatLng);
+          document.getElementById('back-btn').style.display = 'inline-block';
+        } else {
+          showNotification('Please select a destination first!', 'warning');
+        }
+      });
+    });
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      if (routingControl) map.removeControl(routingControl);
+      if (window.currentRoute) {
+        map.removeLayer(window.currentRoute);
+        window.currentRoute = null;
+      }
+      // JSON display panel cleanup (commented out since panel is disabled)
+      /*
+      if (window.apiResponseDisplay) {
+        document.body.removeChild(window.apiResponseDisplay);
+        window.apiResponseDisplay = null;
+      }
+      */
+      infoPanel.classList.remove('active');
+      document.getElementById('ar-btn').disabled = true;
+      document.getElementById('back-btn').style.display = 'none';
+      document.getElementById('ar-container').classList.remove('active');
+      isARModeEnabled = false;
+      
+      // Stop AR video tracks
+      const videoElem = document.getElementById('video');
+      if (videoElem.srcObject) {
+        videoElem.srcObject.getTracks().forEach(track => track.stop());
+      }
+      
+      routeCoordinates = [];
+      instructions = [];
+      
+      // Clear destination marker
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker && layer !== userMarker) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      destinationLatLng = null;
+      document.getElementById('search').value = '';
+    });
+
+    // Close info panel
+    document.getElementById('close-info').addEventListener('click', () => {
+      infoPanel.classList.remove('active');
+    });
+
+    /*********************
+     * AR NAVIGATION & HELPER FUNCTIONS
+     *********************/
+    document.getElementById('ar-btn').addEventListener('click', () => {
+      if (!isARModeEnabled) {
+        isARModeEnabled = true;
+        document.getElementById('ar-container').classList.add('active');
+        document.getElementById('ar-btn').disabled = true;
+        startAR();
+      }
+    });
+
+    // Close AR view
+    document.getElementById('close-ar').addEventListener('click', () => {
+      document.getElementById('ar-container').classList.remove('active');
+      isARModeEnabled = false;
+      document.getElementById('ar-btn').disabled = false;
+      
+      // Stop video tracks
+      const videoElem = document.getElementById('video');
+      if (videoElem.srcObject) {
+        videoElem.srcObject.getTracks().forEach(track => track.stop());
+      }
+    });
+
+    // Toggle AR fullscreen
+    document.getElementById('toggle-fullscreen-ar').addEventListener('click', () => {
+      const arContainer = document.getElementById('ar-container');
+      
+      if (arContainer.classList.contains('fullscreen')) {
+        arContainer.classList.remove('fullscreen');
+        arContainer.style.height = '60vh';
+        document.getElementById('toggle-fullscreen-ar').innerHTML = '<i class="fas fa-expand"></i>';
+      } else {
+        arContainer.classList.add('fullscreen');
+        arContainer.style.height = '100vh';
+        document.getElementById('toggle-fullscreen-ar').innerHTML = '<i class="fas fa-compress"></i>';
+      }
+    });
+
+    let video = document.getElementById('video');
+    function startAR() {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+          video.srcObject = stream;
+          video.play();
+          
+          video.addEventListener('loadeddata', () => {
+            arrowCanvas.width = video.videoWidth;
+            arrowCanvas.height = video.videoHeight;
+            
+            if (userMarker && destinationLatLng) {
+              updateARNavigation(userMarker.getLatLng());
+            }
+          });
+        })
+        .catch((err) => {
+          console.error('Error accessing camera:', err);
+          showNotification('Camera access failed. Please allow camera permissions.', 'error');
+          document.getElementById('ar-container').classList.remove('active');
+          isARModeEnabled = false;
+          document.getElementById('ar-btn').disabled = false;
+        });
+
+      if (!deviceOrientationListenerAdded) {
+        // Request permission for iOS devices
+        if (typeof DeviceOrientationEvent !== 'undefined' && 
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+          
+          DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+              if (permissionState === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation, true);
+              } else {
+                showNotification('Orientation access denied. AR navigation may not work correctly.', 'warning');
+              }
+            })
+            .catch(console.error);
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation, true);
+        }
+        
+        deviceOrientationListenerAdded = true;
+      }
+    }
+
+    function handleOrientation(event) {
+      // Get device orientation
+      let heading = event.alpha || 0;
+      
+      // Update compass needle
+      if (compassNeedle) {
+        compassNeedle.style.transform = `rotate(${heading}deg)`;
+      }
+      
+      currentHeading = heading;
+      
+      if (destinationLatLng && isARModeEnabled && userMarker) {
+        updateARNavigation(userMarker.getLatLng());
+      }
+    }
+
+    function updateARNavigation(userLatLng) {
+      if (!destinationLatLng || !isARModeEnabled) return;
+      
+      // Calculate bearing to destination
+      const destinationHeading = calculateHeading(userLatLng, destinationLatLng);
+      
+      // Calculate relative angle (where to point the arrow)
+      const relativeAngle = (destinationHeading - currentHeading + 360) % 360;
+      
+      // Update arrow rotation
+      arArrowPointer.style.transform = `rotate(${relativeAngle}deg)`;
+      
+      // Calculate distance to destination
+      const distance = userLatLng.distanceTo(destinationLatLng);
+      arDistanceText.innerHTML = distance < 1000 ? 
+        `${distance.toFixed(0)} m` : 
+        `${(distance / 1000).toFixed(2)} km`;
+      
+      // Update direction text based on angle
+      let directionText = '';
+      if (relativeAngle >= 337.5 || relativeAngle < 22.5) {
+        directionText = 'Continue straight ahead';
+      } else if (relativeAngle >= 22.5 && relativeAngle < 67.5) {
+        directionText = 'Turn slightly right';
+      } else if (relativeAngle >= 67.5 && relativeAngle < 112.5) {
+        directionText = 'Turn right';
+      } else if (relativeAngle >= 112.5 && relativeAngle < 157.5) {
+        directionText = 'Turn sharp right';
+      } else if (relativeAngle >= 157.5 && relativeAngle < 202.5) {
+        directionText = 'Turn around';
+      } else if (relativeAngle >= 202.5 && relativeAngle < 247.5) {
+        directionText = 'Turn sharp left';
+      } else if (relativeAngle >= 247.5 && relativeAngle < 292.5) {
+        directionText = 'Turn left';
+      } else if (relativeAngle >= 292.5 && relativeAngle < 337.5) {
+        directionText = 'Turn slightly left';
+      }
+      
+      // Get next instruction if available
+      let instructionText = '';
+      if (nextWaypointIndex < instructions.length) {
+        instructionText = instructions[nextWaypointIndex].text;
+      } else {
+        instructionText = 'Arrived at destination';
+      }
+      
+      // Update direction indicator
+      arDirectionText.innerHTML = `
+        <i class="fas fa-directions"></i>
+        <span>${distance < 30 ? instructionText : directionText}</span>
+      `;
+      
+      // If very close to destination, show arrival message
+      if (distance < 10) {
+        arDirectionText.innerHTML = `
+          <i class="fas fa-check-circle"></i>
+          <span>You have arrived at your destination</span>
+        `;
+        arArrowPointer.style.borderBottom = '30px solid var(--success)';
+      } else {
+        arArrowPointer.style.borderBottom = '30px solid var(--primary)';
+      }
+    }
+
+    function calculateHeading(from, to) {
+      const lat1 = from.lat * Math.PI / 180;
+      const lat2 = to.lat * Math.PI / 180;
+      const dLon = (to.lng - from.lng) * Math.PI / 180;
+      const y = Math.sin(dLon) * Math.cos(lat2);
+      const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+      const heading = Math.atan2(y, x) * 180 / Math.PI;
+      return (heading + 360) % 360;
+    }
+
+    // ---- Backend-Integrated Indoor Navigation ----
+    async function fetchNavigationRoute(userLatLng, destinationLatLng) {
+        try {
+            // For demo—ignores params, replace with param logic if backend supports
+            const response = await fetch('http://127.0.0.1:5000/api/navigation');
+            const data = await response.json();
+            if (data.status === 'success' && data.route) {
+                // Use the returned route as waypoints for map path/rendering
+                updateRouteOnMap(data.route);
+            } else {
+                console.error('Navigation API error:', data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch navigation route:', err);
+        }
+    }
+
+    function updateRouteOnMap(routePoints) {
+        // Remove existing route from map (if any)
+        if (window.currentRoute) {
+            map.removeLayer(window.currentRoute);
+        }
+        const latlngs = routePoints.map(pt => [pt.lat, pt.lng]);
+        window.currentRoute = L.polyline(latlngs, {color: '#3a86ff', weight: 6}).addTo(map);
+        map.fitBounds(window.currentRoute.getBounds());
+    }
+
+    // Example: On start navigation or destination selection, call fetchNavigationRoute
+    // fetchNavigationRoute(userLatLng, destinationLatLng);
+
+    // Demo: Run when map is ready (for now, auto-fetch, later bind to user action)
+    window.addEventListener('DOMContentLoaded', function() {
+        // Load facilities for both supported stations
+        loadFacilitiesForStation('dadar');
+        loadFacilitiesForStation('kurla');
+        // Center map to Mumbai region for better initial view
+        map.setView([19.054, 72.861], 13);
+
+        // Check for destination from dashboard search
+        const storedDestination = sessionStorage.getItem('navigationDestination');
+        if (storedDestination) {
+            try {
+                const dest = JSON.parse(storedDestination);
+                destinationLatLng = L.latLng(dest.lat, dest.lng);
+                
+                // Hide all facility pins
+                stationLayers.dadar.removeFrom(map);
+                stationLayers.kurla.removeFrom(map);
+                
+                // Add destination marker (only the searched facility)
+                destinationMarker = L.marker(destinationLatLng, {
+                    icon: L.divIcon({
+                        className: 'destination-marker',
+                        html: '<i class="fas fa-map-marker-alt" style="font-size: 24px; color: #ff006e;"></i>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 24]
+                    })
+                }).addTo(map).bindPopup(`<b>${dest.name}</b>`).openPopup();
+                
+                // Center map on destination
+                map.setView(destinationLatLng, 15);
+                
+                // Clear the stored destination
+                sessionStorage.removeItem('navigationDestination');
+                
+                // Start getting location and navigation immediately (don't wait for callback)
+                // This allows route calculation to start as soon as location is available
+                getUserLocation((userLatLng) => {
+                    if (destinationLatLng) {
+                        updateRoute(userLatLng);
+                    }
+                });
+                
+                // Also try to get location immediately if already available
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                            if (destinationLatLng) {
+                                updateRoute(userLatLng);
+                            }
+                        },
+                        (error) => {
+                            console.log('Initial location fetch failed, will retry via getUserLocation');
+                        },
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+                    );
+                }
+            } catch (e) {
+                console.error('Error parsing stored destination:', e);
+            }
+        }
+    });
+
+    /*********************
+     * INITIALIZE APP
+     *********************/
+    getUserLocation(() => {});
+    watchUserLocation();
+  </script>
+</body>
+</html>

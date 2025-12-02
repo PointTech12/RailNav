@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedestrian Network Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; font-family: 'Poppins', sans-serif; }
+    #map { height: 100%; width: 100%; }
+    .legend {
+      position: absolute; top: 10px; right: 10px; background: white; padding: 10px 12px;
+      border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 1000; font-size: 13px;
+    }
+    .legend h4 { margin: 0 0 8px 0; font-size: 14px; }
+    .legend .item { display: flex; align-items: center; margin: 4px 0; }
+    .legend .swatch { width: 14px; height: 4px; margin-right: 8px; border-radius: 2px; }
+    .toolbar {
+      position: absolute; left: 10px; top: 10px; z-index: 1000; display: flex; gap: 8px;
+    }
+    .toolbar button {
+      border: none; padding: 8px 12px; border-radius: 8px; background: #3a86ff; color: white; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.history.back()">← Back</button>
+    <button id="reload">Reload Area</button>
+  </div>
+  <div id="map"></div>
+  <div class="legend" id="legend">
+    <h4>Pedestrian Layers</h4>
+    <div class="item"><span class="swatch" style="background:#16a34a"></span>Foot Path</div>
+    <div class="item"><span class="swatch" style="background:#fb923c"></span>Path</div>
+    <div class="item"><span class="swatch" style="background:#22c55e"></span>Sidewalk</div>
+    <div class="item"><span class="swatch" style="background:#ef4444"></span>Steps</div>
+    <div class="item"><span class="swatch" style="background:#3b82f6"></span>Pedestrian Street</div>
+    <div class="item"><span class="swatch" style="background:#a855f7"></span>Marked Crossing</div>
+    <div class="item"><span class="swatch" style="background:#f43f5e"></span>Informal Path</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([19.054, 72.861], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    const layers = {
+      foot_path: L.layerGroup().addTo(map),
+      path: L.layerGroup().addTo(map),
+      sidewalk: L.layerGroup().addTo(map),
+      steps: L.layerGroup().addTo(map),
+      pedestrian_street: L.layerGroup().addTo(map),
+      marked_crossing: L.layerGroup().addTo(map),
+      informal_path: L.layerGroup().addTo(map),
+      pins: L.layerGroup().addTo(map)
+    };
+
+    const colors = {
+      foot_path: '#16a34a',
+      path: '#fb923c',
+      sidewalk: '#22c55e',
+      steps: '#ef4444',
+      pedestrian_street: '#3b82f6',
+      marked_crossing: '#a855f7',
+      informal_path: '#f43f5e'
+    };
+
+    function clearAll() {
+      Object.values(layers).forEach(group => group.clearLayers());
+    }
+
+    async function loadArea() {
+      clearAll();
+      const center = map.getCenter();
+      const radius = 800; // meters
+      const url = `http://127.0.0.1:5000/api/paths?center=${center.lat.toFixed(6)},${center.lng.toFixed(6)}&radius_m=${radius}&include_pins=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status !== 'success') {
+        console.error('Failed to load paths:', data);
+        return;
+      }
+
+      function addPolylines(features, key) {
+        (features || []).forEach(feat => {
+          const latlngs = (feat.coords || []).map(c => [c.lat, c.lng]);
+          if (latlngs.length >= 2) {
+            L.polyline(latlngs, { color: colors[key], weight: 4, opacity: 0.9 }).addTo(layers[key]);
+          }
+        });
+      }
+
+      addPolylines(data.foot_path, 'foot_path');
+      addPolylines(data.path, 'path');
+      addPolylines(data.sidewalk, 'sidewalk');
+      addPolylines(data.steps, 'steps');
+      addPolylines(data.pedestrian_street, 'pedestrian_street');
+      addPolylines(data.marked_crossing, 'marked_crossing');
+      addPolylines(data.informal_path, 'informal_path');
+
+      // Pins (if any; otherwise can fetch facilities endpoints separately)
+      (data.pins || []).forEach(p => {
+        L.marker([p.lat, p.lng]).bindPopup(p.name || 'Pin').addTo(layers.pins);
+      });
+    }
+
+    map.on('moveend', loadArea);
+    document.getElementById('reload').addEventListener('click', loadArea);
+    loadArea();
+  </script>
+</body>
+</html>
+
+
