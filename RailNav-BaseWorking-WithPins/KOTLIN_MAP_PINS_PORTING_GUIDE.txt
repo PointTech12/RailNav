@@ -1,0 +1,147 @@
+KOTLIN MAP PINS PORTING GUIDE (RailNav-style)
+=============================================
+
+Goal
+----
+Recreate the same “pins on map” behavior you liked in RailNav, but in a different project that is written in Kotlin (Android).
+
+What RailNav does today (source of truth)
+-----------------------------------------
+1) The Leaflet map is inside a WebView and calls:
+   GET http://127.0.0.1:5000/api/paths?center=<lat,lng>&radius_m=800&include_pins=1
+
+2) The response JSON is parsed as `data`, and pins are drawn like:
+   (data.pins || []).forEach(p => L.marker([p.lat, p.lng]).bindPopup(p.name || 'Pin'))
+
+3) IMPORTANT: In the current backend implementation, `/api/paths` returns `pins: []` (empty).
+   That means: if you are seeing pins in some other view, they are likely coming from `/api/facilities/<station>` instead.
+
+Where to look in this repo
+--------------------------
+Frontend marker rendering:
+- `frontend/App.js` (search for `data.pins` and `L.marker`)
+
+Backend `/api/paths` response assembly:
+- `backend/app.py` route: `/api/paths`
+- helper: `_fetch_pedestrian_catalog(...)` currently sets `pins = []`
+
+Backend facilities pin generation (already working, but separate endpoint):
+- `backend/osm_facilities.py` and route `/api/facilities/<station>`
+
+Pin JSON shape to standardize
+-----------------------------
+For a Kotlin app (or any client), standardize pins to a simple, stable shape:
+
+[
+  {
+    "id": "optional-string-or-number",
+    "name": "Label shown in popup",
+    "type": "ATM|Toilet|Food|Entrance|...",
+    "lat": 19.0186,
+    "lng": 72.8446
+  }
+]
+
+RailNav’s Leaflet code expects at minimum:
+- `lat` (number)
+- `lng` (number)
+- `name` (string; used in popup)
+
+What the Kotlin app should implement (client side)
+--------------------------------------------------
+You have two common options. Pick A or B.
+
+A) Use `/api/paths` for both lines + pins (recommended for “move map, refresh pins” UX)
+   - Call `/api/paths` whenever the camera stops moving (debounced).
+   - Read `pins` from the response and render markers.
+   - Bonus: also use the returned path arrays (foot_path/path/sidewalk/etc.) if your Kotlin map supports polylines.
+
+B) Use `/api/facilities/<station>` for pins only (simpler, but station-based)
+   - Call `/api/facilities/dadar` (or other supported station key).
+   - Render returned `facilities` as markers.
+   - This is NOT map-center based unless you extend the backend.
+
+Kotlin marker rendering patterns (MapLibre / Mapbox style approach)
+------------------------------------------------------------------
+NOTE: The exact code differs based on the map library used in the Kotlin project.
+Do not hardcode a library until you confirm which one is used. The steps below are generic.
+
+1) Networking
+   - Use OkHttp (or Retrofit).
+   - Create a data model:
+       data class Pin(val id: String? = null, val name: String? = null, val type: String? = null, val lat: Double, val lng: Double)
+
+2) Fetch pins (example endpoint)
+   - `/api/paths?center=LAT,LNG&radius_m=800&include_pins=1`
+
+3) Parse JSON
+   - Use Kotlinx Serialization, Moshi, or Gson.
+   - You need a wrapper model for `/api/paths`:
+       data class PathsResponse(val status: String, val pins: List<Pin> = emptyList())
+     (You can ignore the path arrays if you only want pins.)
+
+4) Add markers to map
+   - Clear old markers when reloading.
+   - Add new markers for each pin.
+   - Popup/Info window: show `pin.name` and optionally `pin.type`.
+
+5) Refresh strategy (to match RailNav feel)
+   - On camera idle / move end:
+       - take current center lat/lng
+       - debounce by 300–800ms (prevents spamming backend)
+       - fetch `/api/paths` again
+   - Use caching on the server (already present in `backend/app.py` for Overpass calls).
+
+How `/api/paths` can help generate pins (what to change on backend)
+------------------------------------------------------------------
+Right now, `/api/paths` includes a `pins` field but does not populate it.
+To make `/api/paths` truly provide pins for any map area, implement ONE of the following on the backend:
+
+Option 1 (best for map-based pins): Query Overpass for amenities in the same bbox
+  - In `backend/app.py` inside `_fetch_pedestrian_catalog(south, west, north, east)`:
+    - Add a second Overpass query for nodes/ways/relations with amenity/tourism/railway tags in the bbox.
+    - Convert each result to the standardized pin shape (id/name/type/lat/lng).
+    - Return it as `pins`.
+
+Option 2 (reuse existing facilities logic): Add a new bbox endpoint for facilities
+  - Create `/api/facilities_bbox?bbox=s,w,n,e` that runs the facilities query by bbox (not just station center).
+  - Then `/api/paths` can call that helper internally (or the Kotlin client can call it separately).
+
+Option 3 (fast demo): Merge cached station facilities into pins when bbox overlaps a known station
+  - This is less correct but quick:
+    - If bbox intersects a known station center radius, include that station’s cached facilities as pins.
+
+Required pin fields (make client happy)
+---------------------------------------
+Whatever you do, ensure every pin always has:
+- lat (Double)
+- lng (Double)
+- name (String; non-empty fallback like "<type>")
+
+And keep keys consistent: use `lat`/`lng` (not `latitude`/`longitude`) for `/api/paths`,
+because the existing Leaflet code reads `p.lat` and `p.lng`.
+
+Testing checklist (what the other agent should verify)
+------------------------------------------------------
+Backend:
+- Calling `/api/paths?...&include_pins=1` returns JSON with `pins` populated (length > 0) for a known busy area.
+
+Kotlin client:
+- Pins appear as markers.
+- On pan/zoom, pins refresh and old pins are cleared.
+- Tapping a marker shows label/popup (name/type).
+
+Notes about environments
+-----------------------
+- On Android emulator/device, `127.0.0.1` points to the device itself, NOT your PC.
+  The other agent must replace the base URL appropriately:
+  - Android Emulator: use `http://10.0.2.2:5000` for host machine localhost.
+  - Physical device: use `http://<your-PC-LAN-IP>:5000` and ensure firewall allows it.
+
+Deliverable expectation for the other Cursor agent
+--------------------------------------------------
+Ask the other agent to deliver:
+1) Kotlin code that fetches `/api/paths` (or `/api/facilities/...`) and renders markers.
+2) If needed, backend changes so `/api/paths` returns real pins (not empty).
+3) A short note describing the chosen map library integration approach (MapLibre vs Google Maps, etc.).
+

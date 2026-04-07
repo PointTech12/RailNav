@@ -61,6 +61,8 @@
     "portable": {
       "artifactName": "RailwayNavigator-Portable.exe"
     }
+  },
+  "dependencies": {
+    "react-native-webview": "^13.16.0"
   }
 }
-

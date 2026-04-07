@@ -1,42 +1,54 @@
-/* Variables */
+/* Variables — refined transit-inspired palette + typography */
 :root {
-    --primary: #3a86ff;
-    --primary-dark: #2563eb;
-    --secondary: #ff006e;
-    --accent: #ffbe0b;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --dark: #1e293b;
-    --light: #f8fafc;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --primary-soft: rgba(37, 99, 235, 0.12);
+    --primary-muted: rgba(37, 99, 235, 0.07);
+    --primary-ring: rgba(37, 99, 235, 0.22);
+    --secondary: #0d9488;
+    --secondary-soft: rgba(13, 148, 136, 0.12);
+    --accent: #d97706;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --dark: #0f172a;
+    --light: #f1f5f9;
     --gray: #94a3b8;
     --gray-light: #e2e8f0;
     --gray-dark: #64748b;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --surface: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.1);
     --radius-sm: 0.375rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --radius-full: 9999px;
-    --transition: all 0.3s ease;
-    --font-sans: 'Poppins', sans-serif;
+    --transition: all 0.25s ease;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* Dark Mode Variables */
 .dark-mode {
     --primary: #60a5fa;
     --primary-dark: #3b82f6;
-    --secondary: #ec4899;
+    --primary-light: rgba(96, 165, 250, 0.15);
+    --primary-soft: rgba(96, 165, 250, 0.18);
+    --primary-muted: rgba(96, 165, 250, 0.1);
+    --primary-ring: rgba(96, 165, 250, 0.28);
+    --secondary: #2dd4bf;
+    --secondary-soft: rgba(45, 212, 191, 0.15);
     --accent: #fbbf24;
-    --dark: #f8fafc;
-    --light: #0f172a;
+    --dark: #f1f5f9;
+    --light: #0f1419;
     --gray: #94a3b8;
     --gray-light: #1e293b;
-    --gray-dark: #cbd5e1;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+    --gray-dark: #94a3b8;
+    --surface: #1e293b;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
 /* General Styles */
@@ -54,6 +66,16 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    line-height: 1.55;
+    font-size: 0.9375rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+    letter-spacing: -0.02em;
+    font-weight: 600;
 }
 
 a {
@@ -73,7 +95,7 @@ ul {
 
 /* Header */
 header {
-    background-color: var(--primary);
+    background: linear-gradient(165deg, #1e3a8a 0%, #2563eb 48%, #3b82f6 100%);
     color: white;
     padding: 1rem 1.5rem;
     display: flex;
@@ -84,6 +106,7 @@ header {
     top: 0;
     z-index: 100;
     transition: var(--transition);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 header .logo {
@@ -97,10 +120,10 @@ header .logo i {
 }
 
 header .logo h1 {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     font-weight: 700;
     margin: 0;
-    letter-spacing: 0.5px;
+    letter-spacing: -0.03em;
 }
 
 .desktop-nav ul {
@@ -217,7 +240,8 @@ header .logo h1 {
     position: absolute;
     top: 4.5rem;
     right: 1rem;
-    background-color: white;
+    background-color: var(--surface);
+    border: 1px solid var(--gray-light);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     overflow: hidden;
@@ -230,6 +254,7 @@ header .logo h1 {
 
 .dark-mode .dropdown-menu {
     background-color: var(--gray-light);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-menu.open {
@@ -302,7 +327,7 @@ header .logo h1 {
 
 .mob-search-container input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+    box-shadow: 0 0 0 2px var(--primary-ring);
 }
 
 .mob-search-container button {
@@ -432,7 +457,7 @@ main {
 }
 
 .refresh-btn:hover {
-    background-color: rgba(58, 134, 255, 0.1);
+    background-color: var(--primary-soft);
 }
 
 .refresh-btn.rotating i {
@@ -474,7 +499,8 @@ main {
 
 /* Arrival Info */
 .arrival-info {
-    background-color: white;
+    background-color: var(--surface);
+    border: 1px solid var(--gray-light);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
@@ -483,6 +509,7 @@ main {
 
 .dark-mode .arrival-info {
     background-color: var(--gray-light);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .arrival-info:hover {
@@ -507,7 +534,7 @@ main {
     color: var(--primary);
     width: 2.5rem;
     height: 2.5rem;
-    background-color: rgba(58, 134, 255, 0.1);
+    background-color: var(--primary-soft);
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
@@ -515,10 +542,12 @@ main {
 }
 
 .detail-item h3 {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--gray-dark);
     margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .detail-item p {
@@ -534,7 +563,8 @@ main {
 
 /* Crowd Density */
 .crowd-density {
-    background-color: white;
+    background-color: var(--surface);
+    border: 1px solid var(--gray-light);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
@@ -543,6 +573,7 @@ main {
 
 .dark-mode .crowd-density {
     background-color: var(--gray-light);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .crowd-density:hover {
@@ -652,7 +683,8 @@ main {
 /* Facilities */
 .facilities {
     flex: 1;
-    background-color: white;
+    background-color: var(--surface);
+    border: 1px solid var(--gray-light);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
@@ -661,6 +693,7 @@ main {
 
 .dark-mode .facilities {
     background-color: var(--gray-light);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .facilities:hover {
@@ -703,7 +736,7 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(58, 134, 255, 0.1), transparent);
+    background: linear-gradient(135deg, var(--primary-soft), transparent);
     z-index: 0;
 }
 
@@ -746,7 +779,8 @@ main {
 
 /* Upcoming Trains Section */
 .upcoming-trains {
-    background-color: white;
+    background-color: var(--surface);
+    border: 1px solid var(--gray-light);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
@@ -756,6 +790,7 @@ main {
 
 .dark-mode .upcoming-trains {
     background-color: var(--gray-light);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .upcoming-trains:hover {
@@ -848,10 +883,11 @@ main {
 
 /* Footer */
 footer {
-    background-color: var(--primary);
-    color: white;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: rgba(255, 255, 255, 0.92);
     margin-top: auto;
     padding: 2rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .footer-content {
@@ -883,7 +919,8 @@ footer {
     left: 0;
     width: 50px;
     height: 2px;
-    background-color: var(--accent);
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+    border-radius: 1px;
 }
 
 .footer-section p {
@@ -956,7 +993,7 @@ footer {
 .animated-shape {
     width: 400px;
     height: 400px;
-    background: linear-gradient(135deg, rgba(58, 134, 255, 0.05), rgba(58, 134, 255, 0.02));
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0.02));
     border-radius: 50%;
     position: absolute;
     bottom: -200px;
@@ -967,7 +1004,7 @@ footer {
 .animated-shape.shape-2 {
     width: 300px;
     height: 300px;
-    background: linear-gradient(135deg, rgba(255, 0, 110, 0.03), rgba(255, 0, 110, 0.01));
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.05), rgba(13, 148, 136, 0.02));
     top: -150px;
     right: -150px;
     left: auto;
@@ -1015,7 +1052,7 @@ footer {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: var(--surface);
     border-radius: var(--radius-lg);
     width: 90%;
     max-width: 500px;
@@ -1116,7 +1153,7 @@ footer {
 .form-group input[type="text"]:focus,
 .form-group select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+    box-shadow: 0 0 0 2px var(--primary-ring);
 }
 
 .sound-options {
@@ -1153,7 +1190,7 @@ footer {
 
 .sound-option input[type="radio"]:checked + label {
     border-color: var(--primary);
-    background-color: rgba(58, 134, 255, 0.05);
+    background-color: var(--primary-muted);
 }
 
 .sound-option label i {
@@ -1230,7 +1267,7 @@ footer {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
-    background-color: white;
+    background-color: var(--surface);
 }
 
 .dark-mode .login-container {
@@ -1263,7 +1300,7 @@ footer {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(58, 134, 255, 0.9), rgba(255, 0, 110, 0.8));
+    background: linear-gradient(145deg, rgba(30, 58, 138, 0.92) 0%, rgba(37, 99, 235, 0.88) 50%, rgba(13, 148, 136, 0.82) 100%);
     z-index: 1;
 }
 
@@ -1427,7 +1464,7 @@ footer {
 
 .input-with-icon input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+    box-shadow: 0 0 0 2px var(--primary-ring);
 }
 
 .form-options {

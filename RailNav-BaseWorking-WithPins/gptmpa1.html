@@ -936,31 +936,11 @@
               errorMsg = 'Location unavailable. Please try again.';
             } else if (error.code === 3) {
               errorMsg = 'Location request timed out. Please try again.';
-              // Retry once with lower accuracy if timeout occurs
-              setTimeout(() => {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                      const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
-                      if (!userMarker) {
-                        userMarker = createUserMarker(userLatLng).addTo(map);
-                      } else {
-                        userMarker.setLatLng(userLatLng);
-                      }
-                      map.panTo(userLatLng, { animate: true });
-                      if (callback) callback(userLatLng);
-                    },
-                    () => {}, // Silently fail on retry
-                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-                  );
-                }
-              }, 1000);
-              return; // Don't show error immediately, let retry happen
             }
             
             showNotification(errorMsg, 'error');
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 } // Increased timeout to 15s, allow cached location up to 30s
+          { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 }
         );
       } else {
         loadingIndicator.classList.remove('active');
@@ -999,7 +979,7 @@
           (error) => {
             console.error('Location watch failed:', error);
           },
-          { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 } // Allow cached location for faster updates
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
         );
       }
     }
@@ -1872,7 +1852,7 @@
                         (error) => {
                             console.log('Initial location fetch failed, will retry via getUserLocation');
                         },
-                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+                        { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 }
                     );
                 }
             } catch (e) {

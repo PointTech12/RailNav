@@ -2,11 +2,23 @@ import json
 import os
 from typing import Dict, Any, List
 from datetime import datetime
+import time
+import hashlib
 import requests
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
+
+# Overpass API endpoints (fallback if one is slow/down)
+OVERPASS_URLS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://lz4.overpass-api.de/api/interpreter",
+]
+
+_OVERPASS_CACHE: Dict[str, tuple[float, Dict[str, Any]]] = {}
+_OVERPASS_CACHE_TTL_S = 3600.0  # 1 hour (facilities change slowly)
 
 
 STATIONS = {
@@ -52,14 +64,6 @@ TAG_MAPPINGS = {
 }
 
 
-# Overpass API endpoints - try multiple in case of timeout
-_OVERPASS_URLS = [
-    "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter",
-    "https://z.overpass-api.de/api/interpreter",
-    "https://overpass.openstreetmap.ru/api/interpreter"
-]
-
 def _overpass_query(center_lat: float, center_lng: float, radius_m: int) -> Dict[str, Any]:
     # Build a combined Overpass QL query for relevant tags around center within radius
     around = f"around:{radius_m},{center_lat},{center_lng}"
@@ -80,38 +84,37 @@ def _overpass_query(center_lat: float, center_lng: float, radius_m: int) -> Dict
         parts.append(f"relation[\"{k}\"=\"{v}\"]({around});")
 
     q = f"""
-    [out:json][timeout:40];
+    [out:json][timeout:180];
     (
       {''.join(parts)}
     );
     out center tags;
     """
 
-    # Try multiple endpoints with retry logic
-    last_error = None
-    for url in _OVERPASS_URLS:
-        try:
-            print(f"Trying Overpass API: {url}")
-            resp = requests.post(url, data={'data': q}, timeout=60)
-            resp.raise_for_status()
-            data = resp.json()
-            print(f"✅ Successfully fetched data from {url}")
-            return data
-        except requests.exceptions.Timeout as e:
-            print(f"⏱️ Timeout error with {url}: {e}")
-            last_error = e
-            continue
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Request error with {url}: {e}")
-            last_error = e
-            continue
-        except Exception as e:
-            print(f"❌ Unexpected error with {url}: {e}")
-            last_error = e
-            continue
-    
-    # If all endpoints failed, raise the last error
-    raise Exception(f"All Overpass API endpoints failed. Last error: {last_error}")
+    cache_key = hashlib.sha1(q.encode('utf-8')).hexdigest()
+    now = time.time()
+    cached = _OVERPASS_CACHE.get(cache_key)
+    if cached and (now - cached[0]) < _OVERPASS_CACHE_TTL_S:
+        return cached[1]
+
+    last_error: Exception | None = None
+    for url in OVERPASS_URLS:
+        for attempt in range(2):
+            try:
+                resp = requests.post(url, data={'data': q}, timeout=180)
+                resp.raise_for_status()
+                data = resp.json()
+                _OVERPASS_CACHE[cache_key] = (time.time(), data)
+                return data
+            except requests.exceptions.Timeout as e:
+                last_error = e
+                time.sleep(0.4 * (attempt + 1))
+                continue
+            except Exception as e:
+                last_error = e
+                break
+
+    raise RuntimeError(f"Overpass facilities query failed. Last error: {last_error}")
 
 
 def _classify_and_name(features: List[Dict[str, Any]], station_prefix: str) -> List[Dict[str, Any]]:

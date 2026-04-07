@@ -8,6 +8,8 @@ import math
 import heapq
 from typing import List, Tuple, Optional, Set, DefaultDict
 from collections import defaultdict
+import time
+import hashlib
 import requests
 
 app = Flask(__name__)
@@ -15,43 +17,56 @@ CORS(app)
 
 # ---- Helper Functions (must be defined before route handlers that use them) ----
 # Overpass API endpoints - try multiple in case of timeout
-# Using reliable public Overpass API instances
 OverpassURLs = [
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
-    "https://z.overpass-api.de/api/interpreter",
-    "https://overpass.openstreetmap.ru/api/interpreter"
+    "https://lz4.overpass-api.de/api/interpreter"
 ]
 OverpassURL = OverpassURLs[0]  # Default to first one
 
-def _fetch_overpass_data(query: str, timeout: int = 60) -> dict:
+# Simple in-memory cache to reduce repeated Overpass calls.
+# Keyed by query hash; helps a lot when the map triggers frequent refreshes.
+_OVERPASS_CACHE: Dict[str, Tuple[float, dict]] = {}
+_OVERPASS_CACHE_TTL_S = 300.0  # 5 minutes
+
+def _fetch_overpass_data(query: str, timeout: int = 180) -> dict:
     """
     Fetch data from Overpass API with retry logic and multiple endpoint fallback.
     Tries each endpoint in order until one succeeds.
     """
-    import time
-    last_error = None
+    now = time.time()
+    cache_key = hashlib.sha1(query.encode('utf-8')).hexdigest()
+    cached = _OVERPASS_CACHE.get(cache_key)
+    if cached and (now - cached[0]) < _OVERPASS_CACHE_TTL_S:
+        return cached[1]
+
+    last_error: Exception | None = None
     
     for url in OverpassURLs:
-        try:
-            print(f"Trying Overpass API: {url}")
-            resp = requests.post(url, data={'data': query}, timeout=timeout)
-            resp.raise_for_status()
-            data = resp.json()
-            print(f"✅ Successfully fetched data from {url}")
-            return data
-        except requests.exceptions.Timeout as e:
-            print(f"⏱️ Timeout error with {url}: {e}")
-            last_error = e
-            continue
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Request error with {url}: {e}")
-            last_error = e
-            continue
-        except Exception as e:
-            print(f"❌ Unexpected error with {url}: {e}")
-            last_error = e
-            continue
+        # Try each endpoint twice (often succeeds on a second try).
+        for attempt in range(2):
+            try:
+                print(f"Trying Overpass API: {url} (attempt {attempt + 1}/2)")
+                resp = requests.post(url, data={'data': query}, timeout=timeout)
+                resp.raise_for_status()
+                data = resp.json()
+                _OVERPASS_CACHE[cache_key] = (time.time(), data)
+                print(f"✅ Successfully fetched data from {url}")
+                return data
+            except requests.exceptions.Timeout as e:
+                print(f"⏱️ Timeout error with {url}: {e}")
+                last_error = e
+                # small backoff before retrying same endpoint
+                time.sleep(0.4 * (attempt + 1))
+                continue
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Request error with {url}: {e}")
+                last_error = e
+                break
+            except Exception as e:
+                print(f"❌ Unexpected error with {url}: {e}")
+                last_error = e
+                break
     
     # If all endpoints failed, raise the last error
     raise Exception(f"All Overpass API endpoints failed. Last error: {last_error}")
@@ -335,7 +350,7 @@ def _fetch_pedestrian_catalog(south: float, west: float, north: float, east: flo
     Returns dict of arrays, each entry: {highway, subtype, coords: [{lat,lng}, ...]}
     """
     query = f"""
-    [out:json][timeout:25];
+    [out:json][timeout:180];
     (
       way["highway"="footway"]["footway"="sidewalk"]({south},{west},{north},{east});
       way["highway"="footway"]["footway"="crossing"]({south},{west},{north},{east});
@@ -347,7 +362,7 @@ def _fetch_pedestrian_catalog(south: float, west: float, north: float, east: flo
     (._;>;);
     out body;
     """
-    data = _fetch_overpass_data(query, timeout=60)
+    data = _fetch_overpass_data(query, timeout=180)
 
     node_map: Dict[int, Tuple[float, float]] = {}
     for el in data.get('elements', []):
@@ -424,7 +439,7 @@ def _fetch_pedestrian_ways(south: float, west: float, north: float, east: float)
     Excludes: marked crossings, other footway subtypes, vehicle roads
     """
     query = f"""
-    [out:json][timeout:25];
+    [out:json][timeout:180];
     (
       way
         ["highway"~"^(footway|path|pedestrian|steps)$"]
@@ -433,7 +448,7 @@ def _fetch_pedestrian_ways(south: float, west: float, north: float, east: float)
     (._;>;);
     out body;
     """
-    data = _fetch_overpass_data(query, timeout=60)
+    data = _fetch_overpass_data(query, timeout=180)
 
     nodes = {}
     ways = []
@@ -514,7 +529,7 @@ def _fetch_highways(south: float, west: float, north: float, east: float):
     Excludes: footpaths, paths, pedestrian-only ways
     """
     query = f"""
-    [out:json][timeout:25];
+    [out:json][timeout:180];
     (
       way
         ["highway"~"^(residential|service|tertiary|secondary|primary|trunk|motorway|unclassified)$"]
@@ -523,7 +538,7 @@ def _fetch_highways(south: float, west: float, north: float, east: float):
     (._;>;);
     out body;
     """
-    data = _fetch_overpass_data(query, timeout=60)
+    data = _fetch_overpass_data(query, timeout=180)
 
     nodes = {}
     ways = []

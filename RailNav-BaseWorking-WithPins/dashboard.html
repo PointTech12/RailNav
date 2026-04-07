@@ -3,17 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Enhanced Railway Navigation Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
     <style>
         /* Map Section Styles */
         .map-section {
             margin: 2rem 1.5rem;
-            background: white;
+            background: var(--surface);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
             overflow: hidden;
@@ -22,7 +22,7 @@
 
         .dark-mode .map-section {
             background: var(--gray-light);
-            border-color: var(--gray-dark);
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .map-section-header {
@@ -85,40 +85,389 @@
             color: var(--light);
         }
 
-        .proximity-indicator {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-            background: var(--success);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: none;
-        }
-
-        .proximity-indicator.active {
-            display: block;
-        }
-
-        .proximity-indicator.near {
-            background: var(--warning);
-        }
-
-        .proximity-indicator.far {
-            background: var(--gray-dark);
-        }
-
         @media (max-width: 768px) {
             .map-section {
-                margin: 1rem;
+                margin: 1rem max(0.75rem, env(safe-area-inset-left, 0)) 1rem max(0.75rem, env(safe-area-inset-right, 0));
             }
 
             .map-container {
-                height: 400px;
+                height: min(52vh, 420px);
             }
+
+            .map-section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .map-section-header h2 {
+                margin-right: 0 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .assistant-screen {
+                padding: 0.75rem max(0.75rem, env(safe-area-inset-left, 0)) 1.5rem max(0.75rem, env(safe-area-inset-right, 0));
+            }
+
+            .assistant-header {
+                padding: 1.25rem 0 0.75rem;
+            }
+
+            .chat-log {
+                min-height: min(50vh, 320px);
+            }
+
+            .chat-input-row input {
+                font-size: 1rem;
+                min-height: 2.75rem;
+            }
+
+            .quick-chips button {
+                min-height: 2.75rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .profile-screen {
+                padding-left: max(1rem, env(safe-area-inset-left, 0));
+                padding-right: max(1rem, env(safe-area-inset-right, 0));
+            }
+
+            main.app-main-shell {
+                width: 100%;
+                max-width: none;
+                padding-left: max(0.75rem, env(safe-area-inset-left, 0));
+                padding-right: max(0.75rem, env(safe-area-inset-right, 0));
+            }
+        }
+
+        /* Keep Leaflet tiles contained — avoids map “bleeding” over scrolling UI */
+        .map-section {
+            position: relative;
+            z-index: 1;
+            isolation: isolate;
+        }
+
+        .map-container {
+            position: relative;
+            overflow: hidden;
+            contain: layout paint;
+        }
+
+        .map-container .leaflet-container {
+            z-index: 1 !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        header {
+            z-index: 500;
+            isolation: isolate;
+        }
+
+        /* App layout: tab pages + fixed bottom nav (NaviRail-style) */
+        .app-main-shell {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: max(0, env(safe-area-inset-left, 0));
+            padding-right: max(0, env(safe-area-inset-right, 0));
+            padding-bottom: max(4.75rem, calc(4.75rem + env(safe-area-inset-bottom, 0)));
+        }
+
+        .app-page {
+            display: none;
+            min-height: 0;
+        }
+
+        .app-page.app-page--active {
+            display: block;
+        }
+
+        .app-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            min-height: 4.25rem;
+            padding: 0.4rem max(0.25rem, env(safe-area-inset-left, 0)) calc(0.4rem + env(safe-area-inset-bottom, 0)) max(0.25rem, env(safe-area-inset-right, 0));
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--gray-light);
+            box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+            display: flex;
+            justify-content: stretch;
+            align-items: stretch;
+            z-index: 4000;
+            isolation: isolate;
+        }
+
+        .dark-mode .app-bottom-nav {
+            background: rgba(30, 41, 59, 0.94);
+            border-top-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .app-bottom-nav button {
+            flex: 1;
+            border: none;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            min-height: 3rem;
+            padding: 0.35rem 0.25rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--gray-dark);
+            font-family: var(--font-sans);
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-bottom-nav button i {
+            font-size: 1.35rem;
+            opacity: 0.92;
+        }
+
+        .app-bottom-nav button.active {
+            color: var(--primary);
+        }
+
+        .app-bottom-nav button.active i {
+            opacity: 1;
+        }
+
+        .app-bottom-nav button:active {
+            background: var(--primary-muted);
+        }
+
+        /* Assistant (chatbot) */
+        .assistant-screen {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 1rem 1rem 2rem;
+        }
+
+        .assistant-header {
+            padding: 2rem 0.5rem 1rem;
+        }
+
+        .assistant-header h1 {
+            font-size: 1.625rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--dark);
+        }
+
+        .assistant-header p {
+            color: var(--gray-dark);
+            margin-top: 0.35rem;
+            line-height: 1.5;
+        }
+
+        .assistant-quick-label {
+            font-size: 0.8125rem;
+            color: var(--gray-dark);
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-chips button {
+            padding: 0.5rem 0.95rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-full);
+            background: var(--surface);
+            color: var(--dark);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        .quick-chips button:hover {
+            border-color: var(--primary);
+            background: var(--primary-muted);
+        }
+
+        .dark-mode .quick-chips button {
+            background: var(--gray-light);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--dark);
+        }
+
+        .dark-mode .quick-chips button:hover {
+            border-color: var(--primary);
+        }
+
+        .chat-log {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            min-height: 45vh;
+            margin-bottom: 1rem;
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.bot {
+            align-self: flex-start;
+            background: linear-gradient(155deg, #1e3a8a 0%, #1e40af 55%, #2563eb 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: var(--shadow-md);
+        }
+
+        .dark-mode .chat-bubble.bot {
+            background: linear-gradient(155deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+            padding: 0.5rem 0;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--gray-light);
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+        }
+
+        .chat-send {
+            width: 3rem;
+            height: 3rem;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+            box-shadow: 0 2px 8px var(--primary-ring);
+        }
+
+        .chat-send:hover {
+            background: var(--primary-dark);
+        }
+
+        .chat-send:active {
+            transform: scale(0.96);
+        }
+
+        /* Profile */
+        .profile-screen {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem 2rem;
+        }
+
+        .profile-header h1 {
+            font-size: 1.625rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .dark-mode .profile-card {
+            background: var(--gray-light);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-actions .btn-primary {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+
+        .profile-actions .btn-outline {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+
+        .profile-logged-in {
+            text-align: left;
+        }
+
+        .profile-logged-in .logout {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+        }
+
+        #alarmModal.modal,
+        #profileLoginModal.modal,
+        #profileSignupModal.modal {
+            z-index: 5000 !important;
         }
     </style>
 </head>
@@ -159,13 +508,8 @@
         <button id="mobileSearchBtn"><i class="fas fa-search"></i></button>
     </div>
 
-    <nav class="options">
-        <button id="startNavigation"><i class="fas fa-map-marker-alt"></i> Start Navigation</button>
-        <button id="setAlarm"><i class="fas fa-bell"></i> Set Alarm</button>
-        <!-- View Maps for Paths button removed as requested -->
-    </nav>
-
-    <main>
+    <main class="app-main-shell">
+        <div id="page-navigate" class="app-page app-page--active" role="tabpanel" aria-label="Navigate dashboard">
         <section class="station-info">
             <div class="info-container">
                 <div class="arrival-info">
@@ -242,10 +586,15 @@
 
         <!-- Map Section - Replaces Facilities, Nearby Places, and Quick Navigation -->
         <section class="map-section">
-            <div class="map-section-header">
-                <h2><i class="fas fa-map-marked-alt"></i> Station Map</h2>
-                <div class="proximity-indicator" id="proximityIndicator">
-                    <i class="fas fa-map-pin"></i> <span id="proximityText">Near Station</span>
+            <div class="map-section-header" style="flex-wrap: wrap; gap: 0.75rem;">
+                <h2 style="margin-right:auto;"><i class="fas fa-map-marked-alt"></i> Station Map</h2>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+                    <button type="button" id="setAlarm" style="padding:0.5rem 1rem;border-radius:var(--radius-md);border:1px solid var(--gray-light);background:var(--surface);color:var(--dark);font-weight:600;cursor:pointer;transition:background 0.2s,border-color 0.2s;">
+                        <i class="fas fa-bell"></i> Alarm
+                    </button>
+                    <button type="button" id="startNavigation" style="padding:0.5rem 1rem;border-radius:var(--radius-md);border:none;background:var(--primary);color:#fff;font-weight:600;cursor:pointer;transition:background 0.2s,filter 0.2s;">
+                        <i class="fas fa-route"></i> Full navigation
+                    </button>
                 </div>
             </div>
             <div class="map-container" id="dashboardMap"></div>
@@ -298,7 +647,6 @@
                 </div>
             </div>
         </section>
-    </main>
 
     <footer>
         <div class="footer-content">
@@ -327,6 +675,112 @@
             <p>&copy; 2024 Railway Navigator. All rights reserved.</p>
         </div>
     </footer>
+        </div>
+
+        <div id="page-assistant" class="app-page" role="tabpanel" aria-label="Assistant">
+            <div class="assistant-screen">
+                <div class="assistant-header">
+                    <h1>Station Assistant</h1>
+                    <p>Ask me anything about the station — platforms, food, restrooms, peak hours.</p>
+                </div>
+                <p class="assistant-quick-label">Quick questions</p>
+                <div class="quick-chips" id="quickChips"></div>
+                <div class="chat-log" id="chatLog"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chatInput" placeholder="Ask me about the station…" autocomplete="off" />
+                    <button type="button" class="chat-send" id="chatSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-profile" class="app-page" role="tabpanel" aria-label="Profile">
+            <div class="profile-screen">
+                <div class="profile-header">
+                    <h1>Profile</h1>
+                    <p style="color:var(--gray-dark);">Manage your account</p>
+                </div>
+                <div id="profileGuest" class="profile-card">
+                    <i class="fas fa-user-circle" style="font-size:3rem;color:var(--gray);"></i>
+                    <h2 style="margin:1rem 0 0.5rem;">Welcome, Guest</h2>
+                    <p style="color:var(--gray-dark);font-size:0.95rem;">Sign in for favorites and personalized tips.</p>
+                    <div class="profile-actions">
+                        <button type="button" class="btn-primary" id="openLoginModal">Login</button>
+                        <button type="button" class="btn-outline" id="openSignupModal">Sign Up</button>
+                    </div>
+                </div>
+                <div id="profileUser" class="profile-card profile-logged-in" style="display:none;">
+                    <h2 id="profileUserName"></h2>
+                    <p id="profileUserEmail" style="color:var(--gray-dark);margin-top:0.5rem;"></p>
+                    <p style="margin-top:1rem;font-weight:600;">Favorite stations</p>
+                    <ul id="profileFavorites" style="margin-top:0.5rem;color:var(--gray-dark);"></ul>
+                    <button type="button" class="logout" id="profileLogout">Logout</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="app-bottom-nav" aria-label="Primary">
+        <button type="button" class="app-nav-btn active" data-page="navigate" aria-selected="true">
+            <i class="fas fa-location-arrow"></i>
+            <span>Navigate</span>
+        </button>
+        <button type="button" class="app-nav-btn" data-page="assistant" aria-selected="false">
+            <i class="fas fa-comments"></i>
+            <span>Assistant</span>
+        </button>
+        <button type="button" class="app-nav-btn" data-page="profile" aria-selected="false">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </button>
+    </nav>
+
+    <div id="profileLoginModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login</h2>
+                <button type="button" class="close-profile-modal" data-close="profileLoginModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="confirmLogin" class="btn-primary" style="width:100%;padding:0.75rem;border:none;border-radius:var(--radius-md);background:var(--primary);color:#fff;font-weight:600;">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileSignupModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Up</h2>
+                <button type="button" class="close-profile-modal" data-close="profileSignupModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Full name</label>
+                    <input type="text" id="signupName" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="confirmSignup" class="btn-primary" style="width:100%;padding:0.75rem;border:none;border-radius:var(--radius-md);background:var(--primary);color:#fff;font-weight:600;">Create account</button>
+            </div>
+        </div>
+    </div>
 
     <div class="animation-container">
         <div class="animated-shape"></div>
@@ -467,25 +921,11 @@
         }
 
         function updateProximityIndicator(nearestStation) {
-            const indicator = document.getElementById('proximityIndicator');
-            const text = document.getElementById('proximityText');
-            
-            if (!nearestStation) {
-                indicator.classList.remove('active', 'near', 'far');
-                return;
-            }
-
-            const dist = nearestStation.distance;
-            indicator.classList.add('active');
-            
-            if (dist <= PROXIMITY_THRESHOLD) {
-                indicator.classList.remove('far');
-                indicator.classList.add('near');
-                text.textContent = `Near ${nearestStation.name} (${Math.round(dist)}m)`;
+            if (!nearestStation) return;
+            if (nearestStation.distance <= PROXIMITY_THRESHOLD) {
+                showFacilitiesForStation(nearestStation.key);
             } else {
-                indicator.classList.remove('near');
-                indicator.classList.add('far');
-                text.textContent = `Far from stations (${Math.round(dist/1000)}km)`;
+                hideAllFacilities();
             }
         }
 
@@ -559,8 +999,8 @@
 
         function createUserMarker(latlng) {
             const markerHtml = `
-                <div style="width: 14px; height: 14px; background: #3a86ff; border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
-                <div style="width: 40px; height: 40px; border: 2px solid #3a86ff; border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); animation: pulse 2s infinite;"></div>
+                <div style="width: 14px; height: 14px; background: var(--primary); border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+                <div style="width: 40px; height: 40px; border: 2px solid var(--primary); border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); animation: pulse 2s infinite;"></div>
             `;
             
             const icon = L.divIcon({
@@ -591,8 +1031,8 @@
                         userMarker = createUserMarker(userLatLng).addTo(dashboardMap);
                         userAccuracyCircle = L.circle(userLatLng, {
                             radius: position.coords.accuracy,
-                            color: '#3a86ff',
-                            fillColor: '#3a86ff',
+                            color: '#2563eb',
+                            fillColor: '#2563eb',
                             fillOpacity: 0.1,
                             weight: 1
                         }).addTo(dashboardMap);
@@ -619,13 +1059,6 @@
                                 : `${(nearestStation.distance / 1000).toFixed(2)}km`;
 
                         updateProximityIndicator(nearestStation);
-
-                        // Show/hide facilities based on proximity
-                        if (nearestStation.distance <= PROXIMITY_THRESHOLD) {
-                            showFacilitiesForStation(nearestStation.key);
-                        } else {
-                            hideAllFacilities();
-                        }
                     }
 
                     // Watch position for updates
@@ -654,29 +1087,20 @@
                                         : `${(nearest.distance / 1000).toFixed(2)}km`;
 
                                 updateProximityIndicator(nearest);
-
-                                if (nearest.distance <= PROXIMITY_THRESHOLD) {
-                                    showFacilitiesForStation(nearest.key);
-                                } else {
-                                    hideAllFacilities();
-                                }
                             }
                         },
                         (error) => console.error('Location watch error:', error),
-                        { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+                        { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
                     );
                 },
                 (error) => {
                     console.error('Geolocation error:', error);
-                    let errorMsg = 'Location access denied';
-                    if (error.code === 3) {
-                        errorMsg = 'Location request timed out. Please try again.';
-                    } else if (error.code === 1) {
-                        errorMsg = 'Location access denied. Please enable location services.';
-                    }
-                    document.getElementById('userLocationDisplay').textContent = errorMsg;
+                    let msg = 'Location access denied';
+                    if (error.code === 3) msg = 'Location timed out – try again or allow more time for GPS';
+                    else if (error.code === 2) msg = 'Location unavailable – check GPS/wifi';
+                    document.getElementById('userLocationDisplay').textContent = msg;
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 }
             );
         }
 
@@ -872,7 +1296,7 @@
             
             document.body.appendChild(notification);
             
-            const bgColor = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : type === 'success' ? '#10b981' : '#3a86ff';
+            const bgColor = type === 'error' ? '#dc2626' : type === 'warning' ? '#d97706' : type === 'success' ? '#059669' : '#2563eb';
             notification.style.position = 'fixed';
             notification.style.bottom = '20px';
             notification.style.right = '20px';
@@ -985,14 +1409,220 @@
             }
         }
 
+        function setupBottomNav() {
+            const pages = {
+                navigate: document.getElementById('page-navigate'),
+                assistant: document.getElementById('page-assistant'),
+                profile: document.getElementById('page-profile')
+            };
+            document.querySelectorAll('.app-nav-btn').forEach(function (btn) {
+ btn.addEventListener('click', function () {
+                    var pageKey = btn.getAttribute('data-page');
+                    document.querySelectorAll('.app-nav-btn').forEach(function (b) {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-selected', 'true');
+                    Object.keys(pages).forEach(function (key) {
+                        var el = pages[key];
+                        if (!el) return;
+                        if (key === pageKey) {
+                            el.classList.add('app-page--active');
+                            el.style.display = 'block';
+                        } else {
+                            el.classList.remove('app-page--active');
+                            el.style.display = 'none';
+                        }
+                    });
+                    if (pageKey === 'navigate' && dashboardMap) {
+                        setTimeout(function () {
+                            dashboardMap.invalidateSize();
+                        }, 120);
+                    }
+                    window.scrollTo(0, 0);
+                });
+            });
+        }
+
+        var mapInvalidateScrollTimer;
+        window.addEventListener('scroll', function () {
+            clearTimeout(mapInvalidateScrollTimer);
+            mapInvalidateScrollTimer = setTimeout(function () {
+                var navPage = document.getElementById('page-navigate');
+                if (dashboardMap && navPage && navPage.classList.contains('app-page--active')) {
+                    dashboardMap.invalidateSize();
+                }
+            }, 120);
+        }, { passive: true });
+
+        window.addEventListener('resize', function () {
+            if (dashboardMap) dashboardMap.invalidateSize();
+        });
+
+        function getBotResponse(userMessage) {
+            var lower = userMessage.toLowerCase();
+            if (lower.indexOf('platform') !== -1) {
+                return 'Platforms are on the ground floor. Express trains often use platforms 1–4; follow on-site signs for your line.';
+            }
+            if (lower.indexOf('food') !== -1 || lower.indexOf('restaurant') !== -1) {
+                return 'Food courts and stalls are usually on the main concourse or Level 2. Hours are typically 6 AM – 10 PM — check local boards.';
+            }
+            if (lower.indexOf('restroom') !== -1 || lower.indexOf('bathroom') !== -1 || lower.indexOf('toilet') !== -1) {
+                return 'Restrooms are near most platforms and on upper levels. Ask staff for the nearest accessible facility.';
+            }
+            if (lower.indexOf('peak') !== -1 || lower.indexOf('rush') !== -1) {
+                return 'Peak hours are often 7:00–9:00 AM and 5:00–7:00 PM on weekdays. Allow extra time.';
+            }
+            if (lower.indexOf('parking') !== -1) {
+                return 'Station parking is usually signed from the main exit. Use the official lot where displayed.';
+            }
+            return 'I can help with directions, facilities, timings, and general station info. Try platforms, food, restrooms, or peak hours!';
+        }
+
+        function appendChatBubble(text, isBot) {
+            var log = document.getElementById('chatLog');
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble ' + (isBot ? 'bot' : 'user');
+            bubble.textContent = text;
+            log.appendChild(bubble);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function initAssistant() {
+            var quick = [
+                'Where is Platform 3?',
+                'What facilities are available?',
+                'When is peak hour?',
+                'Where can I find food?'
+            ];
+            var chips = document.getElementById('quickChips');
+            quick.forEach(function (q) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = q;
+                b.addEventListener('click', function () { sendChatMessage(q); });
+                chips.appendChild(b);
+            });
+            appendChatBubble('Hello! I\'m your station assistant. How can I help you today?', true);
+            function sendChatMessage(text) {
+                if (!text || !text.trim()) return;
+                appendChatBubble(text.trim(), false);
+                document.getElementById('chatInput').value = '';
+                setTimeout(function () {
+                    appendChatBubble(getBotResponse(text), true);
+                }, 650);
+            }
+            document.getElementById('chatSend').addEventListener('click', function () {
+                sendChatMessage(document.getElementById('chatInput').value);
+            });
+            document.getElementById('chatInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') sendChatMessage(document.getElementById('chatInput').value);
+            });
+        }
+
+        function initProfile() {
+            var guest = document.getElementById('profileGuest');
+            var userPanel = document.getElementById('profileUser');
+            var state = { loggedIn: false, name: '', email: '', favorites: [] };
+
+            function render() {
+                if (state.loggedIn) {
+                    guest.style.display = 'none';
+                    userPanel.style.display = 'block';
+                    document.getElementById('profileUserName').textContent = state.name;
+                    document.getElementById('profileUserEmail').textContent = state.email;
+                    var ul = document.getElementById('profileFavorites');
+                    ul.innerHTML = '';
+                    if (state.favorites.length === 0) {
+                        ul.innerHTML = '<li style="font-style:italic;">No favorites yet</li>';
+                    } else {
+                        state.favorites.forEach(function (f) {
+                            var li = document.createElement('li');
+                            li.textContent = f;
+                            ul.appendChild(li);
+                        });
+                    }
+                } else {
+                    guest.style.display = 'block';
+                    userPanel.style.display = 'none';
+                }
+            }
+
+            function openModal(id) {
+                var m = document.getElementById(id);
+                if (m) { m.style.display = 'flex'; }
+            }
+            function closeModal(id) {
+                var m = document.getElementById(id);
+                if (m) { m.style.display = 'none'; }
+            }
+
+            document.getElementById('openLoginModal').addEventListener('click', function () { openModal('profileLoginModal'); });
+            document.getElementById('openSignupModal').addEventListener('click', function () { openModal('profileSignupModal'); });
+            document.querySelectorAll('.close-profile-modal').forEach(function (btn) {
+                btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-close')); });
+            });
+
+            document.getElementById('confirmLogin').addEventListener('click', function () {
+                var email = document.getElementById('loginEmail').value.trim();
+                var pass = document.getElementById('loginPassword').value;
+                if (!email || !pass) {
+                    showNotification('Please fill in all fields', 'warning');
+                    return;
+                }
+                state.loggedIn = true;
+                state.name = 'John Doe';
+                state.email = email;
+                state.favorites = ['Central Railway Station', 'North Terminal'];
+                closeModal('profileLoginModal');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                render();
+                showNotification('Successfully logged in!', 'success');
+            });
+
+            document.getElementById('confirmSignup').addEventListener('click', function () {
+                var name = document.getElementById('signupName').value.trim();
+                var email = document.getElementById('signupEmail').value.trim();
+                var pass = document.getElementById('signupPassword').value;
+                if (!name || !email || !pass) {
+                    showNotification('Please fill in all fields', 'warning');
+                    return;
+                }
+                state.loggedIn = true;
+                state.name = name;
+                state.email = email;
+                state.favorites = [];
+                closeModal('profileSignupModal');
+                document.getElementById('signupName').value = '';
+                document.getElementById('signupEmail').value = '';
+                document.getElementById('signupPassword').value = '';
+                render();
+                showNotification('Account created successfully!', 'success');
+            });
+
+            document.getElementById('profileLogout').addEventListener('click', function () {
+                state.loggedIn = false;
+                state.name = '';
+                state.email = '';
+                state.favorites = [];
+                render();
+                showNotification('Logged out.', 'success');
+            });
+        }
+
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', function() {
             initMap();
             setupSearchHandlers();
+            setupBottomNav();
+            initAssistant();
+            initProfile();
             getUserLocation();
             updateArrivalTime();
             fetchCrowdDensity();
-            
+
             document.querySelector('.refresh-btn').addEventListener('click', function() {
                 this.classList.add('rotating');
                 fetchCrowdDensity().then(() => {
